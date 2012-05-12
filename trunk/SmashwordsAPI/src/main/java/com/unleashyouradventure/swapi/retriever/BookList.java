@@ -3,7 +3,7 @@ package com.unleashyouradventure.swapi.retriever;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class LazyArrayList<E> extends ArrayList<E> implements Serializable {
+public class BookList extends ArrayList<Book> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

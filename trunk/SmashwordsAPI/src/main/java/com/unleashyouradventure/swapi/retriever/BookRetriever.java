@@ -41,6 +41,7 @@ public class BookRetriever {
         } else if (book == null) {
             book = new Book();
             book.setId(id);
+            cache.putBook(book);
             // A book we have never heard about before
         } else {
             // We have to load the detail page and we write all attributes new
@@ -50,12 +51,16 @@ public class BookRetriever {
 
         String page = this.loader.getPage(Smashwords.BASE_URL + "/books/view/" + id);
         login.updateLoginStatus(page);
+
         book.setBookOwned(page.contains("<a href=\"#download\">You own it!</a>"));
 
         Element row;
         Element td;
         String url;
         Document doc = Jsoup.parse(page);
+
+        // TODO add other attributes
+
         for (FileType type : FileType.values()) {
             Elements elements = doc.select("table tr td b:contains(" + type.getSmashwordsName() + ")");
             if (elements.size() > 0) {
@@ -81,6 +86,7 @@ public class BookRetriever {
                 book.setBookDownloads(type, downloads);
             }
         }
+        book.setBookDetailsAdded(true);
         return book;
     }
 }
