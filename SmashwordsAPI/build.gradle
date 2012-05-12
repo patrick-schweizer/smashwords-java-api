@@ -1,0 +1,27 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'maven'
+
+sourceCompatibility : 1.6
+
+
+// Project configuration is used for Maven deploy:  
+version = '1.0-SNAPSHOT'  
+group = 'com.swaccess' 
+
+repositories {
+    flatDir name: 'localRepository', dirs: 'lib'
+    mavenRepo urls: "file://" + System.getProperty('user.home') + "/.m2/repository/"
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'com.js-ing', name: 'JSCommons', version: '1.0-SNAPSHOT' 
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.0.1'
+    compile group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.0.1'
+    compile group: 'org.jsoup', name: 'jsoup', version: '1.6.1'
+}
+
+eclipseClasspath {
+        downloadSources = true;
+} 
