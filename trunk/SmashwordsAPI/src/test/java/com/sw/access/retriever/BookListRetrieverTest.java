@@ -12,7 +12,11 @@ import org.junit.Test;
 import com.sw.access.OnOfflineTest;
 import com.unleashyouradventure.swapi.load.LoginHelper;
 import com.unleashyouradventure.swapi.retriever.Book;
+import com.unleashyouradventure.swapi.retriever.BookList;
 import com.unleashyouradventure.swapi.retriever.BookListRetriever;
+import com.unleashyouradventure.swapi.retriever.BookListRetriever.Length;
+import com.unleashyouradventure.swapi.retriever.BookListRetriever.Price;
+import com.unleashyouradventure.swapi.retriever.BookListRetriever.Sortby;
 
 public class BookListRetrieverTest extends OnOfflineTest {
 
@@ -55,8 +59,21 @@ public class BookListRetrieverTest extends OnOfflineTest {
     }
 
     @Test
-    public void testGetBooksNewest() throws IOException {
-        List<Book> books = lib.getBooksNewest();
-        assertTrue(books.size() > 0);
+    public void testGetBooksByParameters() throws IOException {
+        for (Sortby sortby : Sortby.values()) {
+            for (Price price : Price.values()) {
+                for (Length length : Length.values()) {
+                    List<Book> books = lib.getBooksByCategory(sortby, price, length);
+                    assertTrue(books.size() > 0);
+                }
+            }
+        }
+
+    }
+
+    @Test
+    public void testGetNext() throws IOException {
+        BookList books = lib.getBooksByCategory(Sortby.newest, Price.anyPrice, Length.any);
+        assertTrue(books.hasMoreElementsToLoad());
     }
 }
