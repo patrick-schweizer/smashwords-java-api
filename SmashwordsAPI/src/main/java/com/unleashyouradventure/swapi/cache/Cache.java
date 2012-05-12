@@ -1,7 +1,7 @@
 package com.unleashyouradventure.swapi.cache;
 
 import com.unleashyouradventure.swapi.retriever.Book;
-import com.unleashyouradventure.swapi.retriever.LazyArrayList;
+import com.unleashyouradventure.swapi.retriever.BookList;
 
 /**
  * Caches books and book lists for performance and offline purposes. The cache
@@ -15,9 +15,9 @@ import com.unleashyouradventure.swapi.retriever.LazyArrayList;
 public interface Cache {
     Book getBook(long id);
 
-    LazyArrayList<Book> getBooks(String url);
+    BookList getBooks(String url);
 
     void putBook(Book book);
 
-    void putBooks(String url, LazyArrayList<Book> books);
+    void putBooks(String url, BookList books);
 }

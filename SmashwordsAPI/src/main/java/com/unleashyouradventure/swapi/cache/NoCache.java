@@ -1,7 +1,7 @@
 package com.unleashyouradventure.swapi.cache;
 
 import com.unleashyouradventure.swapi.retriever.Book;
-import com.unleashyouradventure.swapi.retriever.LazyArrayList;
+import com.unleashyouradventure.swapi.retriever.BookList;
 
 /** Dummy Cache, doesn't cache at all. */
 public class NoCache implements Cache {
@@ -10,7 +10,7 @@ public class NoCache implements Cache {
         return null;
     }
 
-    public LazyArrayList<Book> getBooks(String url) {
+    public BookList getBooks(String url) {
         return null;
     }
 
@@ -18,7 +18,7 @@ public class NoCache implements Cache {
         // Do nothing, since we don't cache at all
     }
 
-    public void putBooks(String url, LazyArrayList<Book> books) {
+    public void putBooks(String url, BookList books) {
         // Do nothing, since we don't cache at all
     }
 }
