@@ -1,7 +1,6 @@
 package com.unleashyouradventure.swapi.retriever;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,6 +18,46 @@ import com.unleashyouradventure.swapi.load.PageLoader;
 
 public class BookListRetriever {
 
+    public enum Sortby {
+        any, newest, bestsellers, unitssold, downloads, highlyrated;
+    }
+
+    public enum Price {
+        anyPrice("any"), free, $0_99orless(".99"), $2_99orless("2.99"), $5_99orless("5.99"), $9_99orless("9.99");
+        private final String urlName;
+
+        Price(String urlName) {
+            this.urlName = urlName;
+        }
+
+        Price() {
+            this.urlName = name();
+        }
+
+        public String getUrlName() {
+            return urlName;
+        }
+
+    }
+
+    public enum Length {
+
+        any, Short("short"), medium, full, epic;
+        private final String urlName;
+
+        Length(String urlName) {
+            this.urlName = urlName;
+        }
+
+        Length() {
+            this.urlName = name();
+        }
+
+        public String getUrlName() {
+            return urlName;
+        }
+    }
+
     private final static Logger log = Logger.getLogger(BookListRetriever.class.getName());
 
     private PageLoader loader;
@@ -34,35 +73,44 @@ public class BookListRetriever {
      * @param Instead
      *            of an author you can also use a publisher
      */
-    public List<Book> getBooksFromAuthor(String author) throws IOException {
+    public BookList getBooksFromAuthor(String author) throws IOException {
         return getBooks(Smashwords.BASE_URL + "/profile/view/" + author);
     }
 
-    public List<Book> getBooksNewest() throws IOException {
-        return getBooks(Smashwords.BASE_URL + "/");
+    public BookList getBooksByCategory(Sortby sortby, Price price) throws IOException {
+        return getBooksByCategory(sortby, price, Length.any);
     }
 
-    public List<Book> getBooksTop100() throws IOException {
-        return getBooks(Smashwords.BASE_URL + "/100");
+    public BookList getBooksByCategory(Sortby sortby) throws IOException {
+        return getBooksByCategory(sortby, Price.anyPrice, Length.any);
     }
 
-    public List<Book> getBooksFromLibary() throws IOException {
+    public BookList getBooksByCategory(Sortby sortby, Price price, Length length) throws IOException {
+        StringBuilder url = new StringBuilder();
+        url.append(Smashwords.BASE_URL).append("/books/category/1/");
+        url.append(sortby).append("/0/");
+        url.append(price.getUrlName()).append('/');
+        url.append(length.getUrlName());
+        return getBooks(url.toString());
+    }
+
+    public BookList getBooksFromLibary() throws IOException {
         login.loginIfNecessary();
         return getBooks(Smashwords.BASE_URL + "/library");
     }
 
-    public List<Book> getBooks(String url) throws IOException {
+    public BookList getBooks(String url) throws IOException {
 
-        LazyArrayList<Book> books = cache.getBooks(url);
+        BookList books = cache.getBooks(url);
         if (books == null) {
-            books = new LazyArrayList<Book>();
+            books = new BookList();
             loadBooksIntoList(url, books);
         }
 
         return books;
     }
 
-    private void loadBooksIntoList(String url, LazyArrayList<Book> books) throws IOException {
+    private void loadBooksIntoList(String url, BookList books) throws IOException {
         String page = this.loader.getPage(url);
         login.updateLoginStatus(page);
         Document doc = Jsoup.parse(page);
@@ -72,17 +120,17 @@ public class BookListRetriever {
         }
         String urlForNextSet = getUrlForNextSet(doc);
         books.setUrlForNextSet(urlForNextSet);
+        cache.putBooks(url, books);
     }
 
-    public void getMoreBooks(List<Book> books) throws IOException {
-        if (books instanceof LazyArrayList && ((LazyArrayList<Book>) books).hasMoreElementsToLoad()) {
-            LazyArrayList<Book> booksLAL = (LazyArrayList<Book>) books;
-            loadBooksIntoList(booksLAL.getUrlForNextSet(), booksLAL);
+    public void getMoreBooks(BookList books) throws IOException {
+        if (books.hasMoreElementsToLoad()) {
+            loadBooksIntoList(books.getUrlForNextSet(), books);
         }
     }
 
     private String getUrlForNextSet(Document doc) {
-        Elements elements = doc.getElementsContainingOwnText("Next &gt;");
+        Elements elements = doc.getElementsContainingOwnText("Next >");
         if (elements.isEmpty()) {
             return null;
         }
@@ -116,7 +164,7 @@ public class BookListRetriever {
         @Override
         protected String parseElement(Element element) {
             String style = element.attr("style");
-            return new StringTrimmer(style).getAfterNext("background:url('").getBeforeNext("'").toString();
+            return new StringTrimmer(style).getAfterNext("background:url('").getBeforeNext("-tiny'").toString();
         }
     };
 
@@ -150,9 +198,13 @@ public class BookListRetriever {
 
         @Override
         protected Integer parseElement(Element element) {
+            if (element == null)
+                return 0;
             Element subnote = element.getElementsByClass("subnote").first();
             String txt = subnote.text();
             if (txt.contains("Price: Free!")) {
+                return 0;
+            } else if (txt.contains("You set the price")) {
                 return 0;
             } else {
                 txt = new StringTrimmer(txt).getAfterNext("Price: $").getBeforeNext("USD").toString();

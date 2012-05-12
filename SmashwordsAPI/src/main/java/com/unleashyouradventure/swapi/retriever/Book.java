@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.unleashyouradventure.swapi.Smashwords;
+
 public class Book {
 
     public static class Download {
@@ -26,9 +28,30 @@ public class Book {
 
     }
 
+    public enum ImageSize {
+        tiny, thumb, full("");
+        final String ending;
+
+        ImageSize() {
+            this.ending = "-" + name();
+        }
+
+        ImageSize(String ending) {
+            this.ending = ending;
+        }
+
+        public String getEnding() {
+            return this.ending;
+        }
+    }
+
     public enum FileType {
-        ;
+        MOBI("Kindle"), Epub, PDF, RTF, LRF;
         final String smashwordsName;
+
+        FileType() {
+            this.smashwordsName = name();
+        }
 
         FileType(String smashwordsName) {
             this.smashwordsName = smashwordsName;
@@ -37,7 +60,6 @@ public class Book {
         public String getSmashwordsName() {
             return this.smashwordsName;
         }
-
     }
 
     private long id;
@@ -55,7 +77,7 @@ public class Book {
         return id;
     }
 
-    void setId(long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -63,7 +85,7 @@ public class Book {
         return title;
     }
 
-    void setTitle(String title) {
+    public void setTitle(String title) {
         this.title = title;
     }
 
@@ -71,7 +93,7 @@ public class Book {
         return author;
     }
 
-    void setAuthor(String author) {
+    public void setAuthor(String author) {
         this.author = author;
     }
 
@@ -79,7 +101,7 @@ public class Book {
         return description;
     }
 
-    void setDescription(String description) {
+    public void setDescription(String description) {
         this.description = description;
     }
 
@@ -91,8 +113,8 @@ public class Book {
         this.coverImage = coverImage;
     }
 
-    public String getCoverUrl() {
-        return coverUrl;
+    public String getCoverUrl(ImageSize size) {
+        return coverUrl + size.getEnding();
     }
 
     public void setCoverUrl(String coverUrl) {
@@ -122,5 +144,28 @@ public class Book {
 
     public void setBookDownloads(FileType type, List<Download> downloads) {
         this.downloads.put(type, downloads);
+    }
+
+    public void setBookDetailsAdded(boolean isBookDetailsAdded) {
+        this.isBookDetailsAdded = isBookDetailsAdded;
+    }
+
+    public boolean canBookBeBought() {
+        return !isBookOwned && getPriceInCent() > 0;
+    }
+
+    public String getUrlForPuttingThisBookInShoppingCart() {
+        return Smashwords.BASE_URL + "/cart/add/" + this.id;
+    }
+
+    public boolean canBookBeDownloaded() {
+        return this.isBookOwned || this.priceInCent == 0;
+    }
+
+    public Download getDownloadLinkForNewestVersion(FileType fileType) {
+        List<Book.Download> downloads = this.downloads.get(fileType);
+        if (downloads != null && !downloads.isEmpty())
+            return downloads.get(0);
+        return null;
     }
 }
