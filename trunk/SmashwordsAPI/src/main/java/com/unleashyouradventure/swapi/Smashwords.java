@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import com.unleashyouradventure.swapi.cache.Cache;
 import com.unleashyouradventure.swapi.load.LoginHelper;
 import com.unleashyouradventure.swapi.load.PageLoader;
+import com.unleashyouradventure.swapi.load.PageLoader.ProgressCallback;
 import com.unleashyouradventure.swapi.retriever.BookListRetriever;
 import com.unleashyouradventure.swapi.retriever.BookRetriever;
 
@@ -34,10 +35,10 @@ public class Smashwords {
     }
 
     /** Downloads and saves the file as a temporary file. */
-    public File getFile(File parentFolder, String url) throws IOException {
+    public File getFile(File parentFolder, String url, ProgressCallback callback) throws IOException {
         log.log(Level.FINE, "Looking for URL=" + url);
         login.loginIfNecessary();
-        File file = loader.saveURLToFile(parentFolder, url);
+        File file = loader.saveURLToFile(parentFolder, url, callback);
         log.log(Level.FINE, "Saved file as " + file);
         return file;
     }

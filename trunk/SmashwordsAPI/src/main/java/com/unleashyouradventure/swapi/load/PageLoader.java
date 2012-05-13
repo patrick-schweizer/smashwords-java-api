@@ -52,16 +52,22 @@ public class PageLoader {
     }
 
     public File saveURLToFile(File parentFolder, String url) throws IOException {
+        return saveURLToFile(parentFolder, url, new ProgressCallbackDummy());
+
+    }
+
+    public File saveURLToFile(File parentFolder, String url, ProgressCallback callback) throws IOException {
         HttpGet get = new HttpGet(url);
         addDefaultHeaders(get);
         HttpResponse response = client.execute(get);
 
         int statusCode = response.getStatusLine().getStatusCode();
         if (statusCode == 200) {
+            long contentLength = response.getEntity().getContentLength();
             InputStream input = response.getEntity().getContent();
             File file = createFileName(parentFolder, url);
             OutputStream out = new FileOutputStream(file);
-            IOUtil.copy(input, out);
+            IOUtil.copy(input, out, callback, contentLength);
             return file;
         }
         throw new IOException("Status " + statusCode + "received");
@@ -129,10 +135,26 @@ public class PageLoader {
         int statusCode = response.getStatusLine().getStatusCode();
         if (statusCode == 200) {
             InputStream input = response.getEntity().getContent();
-            byte[] bytes = IOUtil.toByteArray(input);
+            byte[] bytes = IOUtil.toByteArray(input, null, 1l);
             return bytes;
         }
         throw new IOException("Status " + statusCode + "received");
     }
 
+    public static interface ProgressCallback {
+        public void setProgress(int progressInPercent);
+
+        public void setCurrentAction(String action);
+    }
+
+    public static class ProgressCallbackDummy implements ProgressCallback {
+
+        public void setProgress(int progressInPercent) {
+            // do nothing, we are a dummy
+        }
+
+        public void setCurrentAction(String action) {
+            // do nothing, we are a dummy
+        }
+    }
 }
