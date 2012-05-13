@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import com.unleashyouradventure.swapi.load.PageLoader.ProgressCallback;
+
 /**
  * Most of the functions herein are re-implementations of the ones in apache io
  * IOUtils. The reason for re-implementing this is that the functions are fairly
@@ -22,9 +24,10 @@ public class IOUtil {
      * @return
      * @throws IOException
      */
-    public static byte[] toByteArray(InputStream in) throws IOException {
+    public static byte[] toByteArray(InputStream in, ProgressCallback callback, long expectedContentLength)
+            throws IOException {
         ByteArrayOutputStream result = new ByteArrayOutputStream();
-        copy(in, result);
+        copy(in, result, callback, expectedContentLength);
         result.flush();
         return result.toByteArray();
     }
@@ -57,15 +60,21 @@ public class IOUtil {
      * @return the nr of bytes read, or -1 if the amount > Integer.MAX_VALUE
      * @throws IOException
      */
-    public static int copy(InputStream in, OutputStream out) throws IOException {
+    public static int copy(InputStream in, OutputStream out, ProgressCallback callback, long expectedContentLength)
+            throws IOException {
         byte[] buffer = new byte[IO_COPY_BUFFER_SIZE];
         int readSize = -1;
         int result = 0;
         while ((readSize = in.read(buffer)) >= 0) {
             out.write(buffer, 0, readSize);
             result = calcNewNrReadSize(readSize, result);
+            callback.setProgress(calculateProgress(expectedContentLength, result));
         }
         out.flush();
         return result;
+    }
+
+    private static int calculateProgress(long all, long current) {
+        return (int) (((double) current / (double) all) * 100);
     }
 }
