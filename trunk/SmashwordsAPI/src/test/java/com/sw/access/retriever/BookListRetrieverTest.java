@@ -56,6 +56,7 @@ public class BookListRetrieverTest extends OnOfflineTest {
     public void testGetBooksFromAuthor() throws IOException {
         List<Book> books = lib.getBooksFromAuthor("UnleashYourAdventure");
         assertTrue(books.size() > 0);
+        assertTrue(books.get(0).getDescriptionShort().length() > 0);
     }
 
     @Test
@@ -68,7 +69,6 @@ public class BookListRetrieverTest extends OnOfflineTest {
                 }
             }
         }
-
     }
 
     @Test
