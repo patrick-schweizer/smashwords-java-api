@@ -15,6 +15,8 @@ import com.unleashyouradventure.swapi.cache.Cache;
 import com.unleashyouradventure.swapi.cache.NoCache;
 import com.unleashyouradventure.swapi.load.LoginHelper;
 import com.unleashyouradventure.swapi.load.PageLoader;
+import com.unleashyouradventure.swapi.load.PageLoader.ProgressCallback;
+import com.unleashyouradventure.swapi.load.PageLoader.ProgressCallbackDummy;
 
 public class BookListRetriever {
 
@@ -37,7 +39,6 @@ public class BookListRetriever {
         public String getUrlName() {
             return urlName;
         }
-
     }
 
     public enum Length {
@@ -63,60 +64,80 @@ public class BookListRetriever {
     private PageLoader loader;
     private LoginHelper login;
     private Cache cache = new NoCache();
+    private ProgressCallback processCallbackDummy = new ProgressCallbackDummy();
 
     public BookListRetriever(PageLoader loader, LoginHelper login) {
         this.loader = loader;
         this.login = login;
     }
 
+    public BookList getBooksFromAuthor(String author) throws IOException {
+        return getBooksFromAuthor(author, processCallbackDummy);
+    }
+
     /**
      * @param Instead
      *            of an author you can also use a publisher
      */
-    public BookList getBooksFromAuthor(String author) throws IOException {
-        return getBooks(Smashwords.BASE_URL + "/profile/view/" + author);
+    public BookList getBooksFromAuthor(String author, ProgressCallback progress) throws IOException {
+        return getBooks(Smashwords.BASE_URL + "/profile/view/" + author, progress);
     }
 
-    public BookList getBooksByCategory(Sortby sortby, Price price) throws IOException {
-        return getBooksByCategory(sortby, price, Length.any);
+    public BookList getBooksByCategory(Sortby sortby, Price price, ProgressCallback progress) throws IOException {
+        return getBooksByCategory(sortby, price, Length.any, progress);
     }
 
-    public BookList getBooksByCategory(Sortby sortby) throws IOException {
-        return getBooksByCategory(sortby, Price.anyPrice, Length.any);
+    public BookList getBooksByCategory(Sortby sortby, ProgressCallback progress) throws IOException {
+        return getBooksByCategory(sortby, Price.anyPrice, Length.any, progress);
     }
 
     public BookList getBooksByCategory(Sortby sortby, Price price, Length length) throws IOException {
+        return getBooksByCategory(sortby, price, length, processCallbackDummy);
+    }
+
+    public BookList getBooksByCategory(Sortby sortby, Price price, Length length, ProgressCallback progress)
+            throws IOException {
         StringBuilder url = new StringBuilder();
         url.append(Smashwords.BASE_URL).append("/books/category/1/");
         url.append(sortby).append("/0/");
         url.append(price.getUrlName()).append('/');
         url.append(length.getUrlName());
-        return getBooks(url.toString());
+        return getBooks(url.toString(), progress);
     }
 
     public BookList getBooksFromLibary() throws IOException {
-        login.loginIfNecessary();
-        return getBooks(Smashwords.BASE_URL + "/library");
+        return getBooksFromLibary(processCallbackDummy);
     }
 
-    public BookList getBooks(String url) throws IOException {
+    public BookList getBooksFromLibary(ProgressCallback progress) throws IOException {
+        login.loginIfNecessary();
+        return getBooks(Smashwords.BASE_URL + "/library", progress);
+    }
+
+    public BookList getBooks(String url, ProgressCallback progress) throws IOException {
 
         BookList books = cache.getBooks(url);
         if (books == null) {
             books = new BookList();
-            loadBooksIntoList(url, books);
+            loadBooksIntoList(url, books, progress);
         }
 
         return books;
     }
 
-    private void loadBooksIntoList(String url, BookList books) throws IOException {
+    private void loadBooksIntoList(String url, BookList books, ProgressCallback progress) throws IOException {
+        progress.setCurrentAction("Connecting to Smashwords");
         String page = this.loader.getPage(url);
         login.updateLoginStatus(page);
+        progress.setCurrentAction("Reading page");
+        progress.setProgress(30);
+        int prog = 30;
         Document doc = Jsoup.parse(page);
         for (Element element : doc.getElementsByClass("bookCoverImg")) {
             Book book = parseBook(element);
             books.add(book);
+            progress.setCurrentAction("Adding book: " + book.getTitle());
+            progress.setProgress(prog += 5);
         }
         String urlForNextSet = getUrlForNextSet(doc);
         books.setUrlForNextSet(urlForNextSet);
@@ -124,8 +145,13 @@ public class BookListRetriever {
     }
 
     public void getMoreBooks(BookList books) throws IOException {
+        ProgressCallback progress = new ProgressCallbackDummy();
+        getMoreBooks(books, progress);
+    }
+
+    public void getMoreBooks(BookList books, ProgressCallback progress) throws IOException {
         if (books.hasMoreElementsToLoad()) {
-            loadBooksIntoList(books.getUrlForNextSet(), books);
+            loadBooksIntoList(books.getUrlForNextSet(), books, progress);
         }
     }
 
@@ -146,7 +172,7 @@ public class BookListRetriever {
         book.setAuthor(authorParser.parse(element));
         book.setCoverUrl(imgParser.parse(element));
         book.setPriceInCent(priceParser.parse(element));
-        // book.setCoverImage(getCoverImage(book.getCoverUrl()));
+        book.setDescriptionShort(shortDescriptionParser.parse(element));
         return book;
     }
 
@@ -213,6 +239,23 @@ public class BookListRetriever {
                 Integer price = Integer.valueOf(txt);
                 return price;
             }
+        }
+    };
+
+    private final static Parser<String> shortDescriptionParser = new Parser<String>() {
+
+        @Override
+        protected String parseElement(Element element) {
+            if (element == null)
+                return null;
+            String text = element.getElementsByClass("text").first().html();
+            StringTrimmer t = new StringTrimmer(text);
+            t.getAfterNext("<span class=\"subnote\">");
+            t.getAfterNext("</span>");
+            t.getAfterLast("<br />");
+            String description = t.toString().trim();
+            description = Jsoup.parseBodyFragment(description).text();
+            return description;
         }
     };
 

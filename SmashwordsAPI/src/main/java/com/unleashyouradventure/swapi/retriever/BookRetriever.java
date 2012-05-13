@@ -34,6 +34,14 @@ public class BookRetriever {
         this.cache = cache;
     }
 
+    public Book getBook(long id) throws IOException {
+        Book book = cache.getBook(id);
+        if (book == null) {
+            return getBookWithDetails(id);
+        }
+        return book;
+    }
+
     public Book getBookWithDetails(long id) throws IOException {
         Book book = cache.getBook(id);
         if (book != null && book.isBookDetailsAdded()) {
