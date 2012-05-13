@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.unleashyouradventure.swapi.Smashwords;
 
@@ -65,7 +66,7 @@ public class Book {
     private long id;
     private String title;
     private String author;
-    private String description;
+    private String descriptionShort;
     private String coverUrl;
     private byte[] coverImage;
     private int priceInCent;
@@ -97,12 +98,12 @@ public class Book {
         this.author = author;
     }
 
-    public String getDescription() {
-        return description;
+    public String getDescriptionShort() {
+        return descriptionShort;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setDescriptionShort(String descriptionShort) {
+        this.descriptionShort = descriptionShort;
     }
 
     public byte[] getCoverImage() {
@@ -167,5 +168,9 @@ public class Book {
         if (downloads != null && !downloads.isEmpty())
             return downloads.get(0);
         return null;
+    }
+
+    public Set<FileType> getFileTypes() {
+        return this.downloads.keySet();
     }
 }
