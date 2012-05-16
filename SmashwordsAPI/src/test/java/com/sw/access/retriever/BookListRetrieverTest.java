@@ -11,7 +11,9 @@ import org.junit.Test;
 
 import com.sw.access.OnOfflineTest;
 import com.unleashyouradventure.swapi.load.LoginHelper;
+import com.unleashyouradventure.swapi.load.PageLoader;
 import com.unleashyouradventure.swapi.retriever.Book;
+import com.unleashyouradventure.swapi.retriever.BookCategory;
 import com.unleashyouradventure.swapi.retriever.BookList;
 import com.unleashyouradventure.swapi.retriever.BookListRetriever;
 import com.unleashyouradventure.swapi.retriever.BookListRetriever.Length;
@@ -25,6 +27,7 @@ public class BookListRetrieverTest extends OnOfflineTest {
     }
 
     private BookListRetriever lib;
+    private BookCategory rootCategory = new BookCategory(1, "All");
 
     @Before
     public void setUp() {
@@ -43,7 +46,7 @@ public class BookListRetrieverTest extends OnOfflineTest {
 
     @Test
     public void testGetBooksFromLibary() throws IOException {
-        List<Book> books = lib.getBooksFromLibary();
+        List<Book> books = lib.getBooksFromLibary(PageLoader.PROGRESS_CALLBACK_DUMMY);
         assertTrue(books.size() > 0);
         Book book = books.get(0);
         assertEquals(0, book.getPriceInCent());
@@ -54,7 +57,7 @@ public class BookListRetrieverTest extends OnOfflineTest {
 
     @Test
     public void testGetBooksFromAuthor() throws IOException {
-        List<Book> books = lib.getBooksFromAuthor("UnleashYourAdventure");
+        List<Book> books = lib.getBooksFromAuthor(PageLoader.PROGRESS_CALLBACK_DUMMY, "UnleashYourAdventure");
         assertTrue(books.size() > 0);
         assertTrue(books.get(0).getDescriptionShort().length() > 0);
     }
@@ -64,7 +67,8 @@ public class BookListRetrieverTest extends OnOfflineTest {
         for (Sortby sortby : Sortby.values()) {
             for (Price price : Price.values()) {
                 for (Length length : Length.values()) {
-                    List<Book> books = lib.getBooksByCategory(sortby, price, length);
+                    List<Book> books = lib.getBooksByCategory(PageLoader.PROGRESS_CALLBACK_DUMMY, rootCategory, sortby,
+                            price, length);
                     assertTrue(books.size() > 0);
                 }
             }
@@ -73,7 +77,8 @@ public class BookListRetrieverTest extends OnOfflineTest {
 
     @Test
     public void testGetNext() throws IOException {
-        BookList books = lib.getBooksByCategory(Sortby.newest, Price.anyPrice, Length.any);
+        BookList books = lib.getBooksByCategory(PageLoader.PROGRESS_CALLBACK_DUMMY, rootCategory, Sortby.newest,
+                Price.anyPrice, Length.any);
         assertTrue(books.hasMoreElementsToLoad());
     }
 }

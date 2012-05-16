@@ -9,6 +9,7 @@ import com.unleashyouradventure.swapi.cache.Cache;
 import com.unleashyouradventure.swapi.load.LoginHelper;
 import com.unleashyouradventure.swapi.load.PageLoader;
 import com.unleashyouradventure.swapi.load.PageLoader.ProgressCallback;
+import com.unleashyouradventure.swapi.retriever.BookCategoryRetriever;
 import com.unleashyouradventure.swapi.retriever.BookListRetriever;
 import com.unleashyouradventure.swapi.retriever.BookRetriever;
 
@@ -22,6 +23,7 @@ public class Smashwords {
     private LoginHelper login;
     private BookListRetriever bookList;
     private BookRetriever bookRetriever;
+    private BookCategoryRetriever bookCategoryRetriever = new BookCategoryRetriever();
 
     public Smashwords(String username, String password) {
         this(username, password, new PageLoader());
@@ -58,5 +60,13 @@ public class Smashwords {
     public void setCache(Cache cache) {
         this.bookList.setCache(cache);
         this.bookRetriever.setCache(cache);
+    }
+
+    public PageLoader getLoader() {
+        return loader;
+    }
+
+    public BookCategoryRetriever getBookCategoryRetriever() {
+        return this.bookCategoryRetriever;
     }
 }
