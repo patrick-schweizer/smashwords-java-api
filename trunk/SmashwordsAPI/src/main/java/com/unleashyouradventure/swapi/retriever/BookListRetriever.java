@@ -1,6 +1,7 @@
 package com.unleashyouradventure.swapi.retriever;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,46 +17,70 @@ import com.unleashyouradventure.swapi.cache.NoCache;
 import com.unleashyouradventure.swapi.load.LoginHelper;
 import com.unleashyouradventure.swapi.load.PageLoader;
 import com.unleashyouradventure.swapi.load.PageLoader.ProgressCallback;
-import com.unleashyouradventure.swapi.load.PageLoader.ProgressCallbackDummy;
 
 public class BookListRetriever {
 
     public enum Sortby {
-        any, newest, bestsellers, unitssold, downloads, highlyrated;
+        any("Any"), newest("Newest"), bestsellers("Best Sellers"), unitssold("Units Sold"), downloads("Most Downloads"), highlyrated(
+                "Highest Rated");
+        private String displayName;
+
+        Sortby(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String toString() {
+            return this.displayName;
+        }
     }
 
     public enum Price {
-        anyPrice("any"), free, $0_99orless(".99"), $2_99orless("2.99"), $5_99orless("5.99"), $9_99orless("9.99");
+        anyPrice("Any price"), free("Free"), $0_99orless("$0.99 or less", ".99"), $2_99orless("$2.99 or less", "2.99"), $5_99orless(
+                "$5.99 or less", "5.99"), $9_99orless("$9.99 or less", "9.99");
         private final String urlName;
+        private final String displayName;
 
-        Price(String urlName) {
+        Price(String displayName, String urlName) {
             this.urlName = urlName;
+            this.displayName = displayName;
         }
 
-        Price() {
+        Price(String displayName) {
+            this.displayName = displayName;
             this.urlName = name();
         }
 
         public String getUrlName() {
             return urlName;
+        }
+
+        public String toString() {
+            return this.displayName;
         }
     }
 
     public enum Length {
 
-        any, Short("short"), medium, full, epic;
+        any("Any length"), Short("Short", "short"), medium("Medium"), full("Full"), epic("Epic");
         private final String urlName;
+        private final String displayName;
 
-        Length(String urlName) {
+        Length(String displayName, String urlName) {
+            this.displayName = displayName;
             this.urlName = urlName;
         }
 
-        Length() {
+        Length(String displayName) {
+            this.displayName = displayName;
             this.urlName = name();
         }
 
         public String getUrlName() {
             return urlName;
+        }
+
+        public String toString() {
+            return this.displayName;
         }
     }
 
@@ -64,94 +89,93 @@ public class BookListRetriever {
     private PageLoader loader;
     private LoginHelper login;
     private Cache cache = new NoCache();
-    private ProgressCallback processCallbackDummy = new ProgressCallbackDummy();
 
     public BookListRetriever(PageLoader loader, LoginHelper login) {
         this.loader = loader;
         this.login = login;
     }
 
-    public BookList getBooksFromAuthor(String author) throws IOException {
-        return getBooksFromAuthor(author, processCallbackDummy);
-    }
-
     /**
      * @param Instead
      *            of an author you can also use a publisher
      */
-    public BookList getBooksFromAuthor(String author, ProgressCallback progress) throws IOException {
-        return getBooks(Smashwords.BASE_URL + "/profile/view/" + author, progress);
+    public BookList getBooksFromAuthor(ProgressCallback progressCallback, String author) throws IOException {
+        return getBooks(progressCallback, Smashwords.BASE_URL + "/profile/view/" + author);
     }
 
-    public BookList getBooksByCategory(Sortby sortby, Price price, ProgressCallback progress) throws IOException {
-        return getBooksByCategory(sortby, price, Length.any, progress);
+    public BookList getBooksByCategory(ProgressCallback progressCallback, BookCategory category, Sortby sortby,
+            Price price) throws IOException {
+        return getBooksByCategory(progressCallback, category, sortby, price, Length.any);
     }
 
-    public BookList getBooksByCategory(Sortby sortby, ProgressCallback progress) throws IOException {
-        return getBooksByCategory(sortby, Price.anyPrice, Length.any, progress);
-    }
-
-    public BookList getBooksByCategory(Sortby sortby, Price price, Length length) throws IOException {
-        return getBooksByCategory(sortby, price, length, processCallbackDummy);
-    }
-
-    public BookList getBooksByCategory(Sortby sortby, Price price, Length length, ProgressCallback progress)
+    public BookList getBooksByCategory(ProgressCallback progressCallback, BookCategory category, Sortby sortby)
             throws IOException {
+        return getBooksByCategory(progressCallback, category, sortby, Price.anyPrice, Length.any);
+    }
+
+    public BookList getBooksByCategory(ProgressCallback progressCallback, BookCategory category) throws IOException {
+        return getBooksByCategory(progressCallback, category, Sortby.any, Price.anyPrice, Length.any);
+    }
+
+    public BookList getBooksBySearch(ProgressCallback progressCallback, String searchterm) throws IOException {
         StringBuilder url = new StringBuilder();
-        url.append(Smashwords.BASE_URL).append("/books/category/1/");
+        url.append(Smashwords.BASE_URL).append("/books/search?query=");
+        url.append(URLEncoder.encode(searchterm, "UTF-8"));
+        return getBooks(progressCallback, url.toString());
+    }
+
+    public BookList getBooksByCategory(ProgressCallback progressCallback, BookCategory category, Sortby sortby,
+            Price price, Length length) throws IOException {
+        StringBuilder url = new StringBuilder();
+        url.append(Smashwords.BASE_URL).append("/books/category/");
+        url.append(category.getId()).append("/");
         url.append(sortby).append("/0/");
         url.append(price.getUrlName()).append('/');
         url.append(length.getUrlName());
-        return getBooks(url.toString(), progress);
+        return getBooks(progressCallback, url.toString());
     }
 
-    public BookList getBooksFromLibary() throws IOException {
-        return getBooksFromLibary(processCallbackDummy);
-    }
-
-    public BookList getBooksFromLibary(ProgressCallback progress) throws IOException {
+    public BookList getBooksFromLibary(ProgressCallback progressCallback) throws IOException {
         login.loginIfNecessary();
-        return getBooks(Smashwords.BASE_URL + "/library", progress);
+        return getBooks(progressCallback, Smashwords.BASE_URL + "/library");
     }
 
-    public BookList getBooks(String url, ProgressCallback progress) throws IOException {
+    public BookList getBooks(ProgressCallback progressCallback, String url) throws IOException {
 
         BookList books = cache.getBooks(url);
         if (books == null) {
             books = new BookList();
-            loadBooksIntoList(url, books, progress);
+            loadBooksIntoList(progressCallback, url, books);
         }
 
         return books;
     }
 
-    private void loadBooksIntoList(String url, BookList books, ProgressCallback progress) throws IOException {
+    private void loadBooksIntoList(ProgressCallback progress, String url, BookList books) throws IOException {
         progress.setCurrentAction("Connecting to Smashwords");
         String page = this.loader.getPage(url);
         login.updateLoginStatus(page);
         progress.setCurrentAction("Reading page");
-        progress.setProgress(30);
+
         int prog = 30;
+        progress.setProgress(prog);
         Document doc = Jsoup.parse(page);
-        for (Element element : doc.getElementsByClass("bookCoverImg")) {
+        Elements elements = doc.getElementsByClass("bookCoverImg");
+        int progStep = (100 - prog) / elements.size();
+        for (Element element : elements) {
             Book book = parseBook(element);
             books.add(book);
             progress.setCurrentAction("Adding book: " + book.getTitle());
-            progress.setProgress(prog += 5);
+            progress.setProgress(prog += progStep);
         }
         String urlForNextSet = getUrlForNextSet(doc);
         books.setUrlForNextSet(urlForNextSet);
         cache.putBooks(url, books);
     }
 
-    public void getMoreBooks(BookList books) throws IOException {
-        ProgressCallback progress = new ProgressCallbackDummy();
-        getMoreBooks(books, progress);
-    }
-
-    public void getMoreBooks(BookList books, ProgressCallback progress) throws IOException {
+    public void getMoreBooks(ProgressCallback progressCallback, BookList books) throws IOException {
         if (books.hasMoreElementsToLoad()) {
-            loadBooksIntoList(books.getUrlForNextSet(), books, progress);
+            loadBooksIntoList(progressCallback, books.getUrlForNextSet(), books);
         }
     }
 
@@ -174,15 +198,6 @@ public class BookListRetriever {
         book.setPriceInCent(priceParser.parse(element));
         book.setDescriptionShort(shortDescriptionParser.parse(element));
         return book;
-    }
-
-    private byte[] getCoverImage(String imgUrl) {
-        try {
-            return this.loader.getUrlAsBytes(imgUrl);
-        } catch (IOException e) {
-            log.log(Level.WARNING, "Loading error, url=" + imgUrl, e);
-        }
-        return null;
     }
 
     private final static Parser<String> imgParser = new Parser<String>() {

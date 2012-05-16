@@ -26,6 +26,9 @@ import com.unleashyouradventure.swapi.load.httpclient.AllowAllRedirectsHandler;
 import com.unleashyouradventure.swapi.util.IOUtil;
 
 public class PageLoader {
+
+    public final static ProgressCallback PROGRESS_CALLBACK_DUMMY = new ProgressCallbackDummy();
+
     private DefaultHttpClient client;
 
     public PageLoader() {
