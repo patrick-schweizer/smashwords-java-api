@@ -32,6 +32,10 @@ public class BookListRetriever {
         public String toString() {
             return this.displayName;
         }
+
+        public Object getUrlName() {
+            return this.name();
+        }
     }
 
     public enum Price {
@@ -129,7 +133,7 @@ public class BookListRetriever {
         StringBuilder url = new StringBuilder();
         url.append(Smashwords.BASE_URL).append("/books/category/");
         url.append(category.getId()).append("/");
-        url.append(sortby).append("/0/");
+        url.append(sortby.getUrlName()).append("/0/");
         url.append(price.getUrlName()).append('/');
         url.append(length.getUrlName());
         return getBooks(progressCallback, url.toString());
@@ -161,7 +165,8 @@ public class BookListRetriever {
         progress.setProgress(prog);
         Document doc = Jsoup.parse(page);
         Elements elements = doc.getElementsByClass("bookCoverImg");
-        int progStep = (100 - prog) / elements.size();
+        int divisor = elements.size() == 0 ? 1 : elements.size();
+        int progStep = (100 - prog) / divisor;
         for (Element element : elements) {
             Book book = parseBook(element);
             books.add(book);
