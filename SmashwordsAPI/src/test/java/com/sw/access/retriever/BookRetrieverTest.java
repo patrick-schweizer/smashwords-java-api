@@ -10,7 +10,9 @@ import org.junit.Test;
 
 import com.sw.access.OnOfflineTest;
 import com.unleashyouradventure.swapi.load.LoginHelper;
+import com.unleashyouradventure.swapi.load.PageLoader;
 import com.unleashyouradventure.swapi.retriever.Book;
+import com.unleashyouradventure.swapi.retriever.Book.ImageSize;
 import com.unleashyouradventure.swapi.retriever.BookRetriever;
 
 public class BookRetrieverTest extends OnOfflineTest {
@@ -37,14 +39,25 @@ public class BookRetrieverTest extends OnOfflineTest {
     }
 
     @Test
+    public void testGetBook() throws IOException {
+        Book book = lib.getBookWithDetails(PageLoader.PROGRESS_CALLBACK_DUMMY, 142475);
+        assertNotNull(book);
+        assertNotNull(book.getAuthor());
+        assertNotNull(book.getCoverUrl(ImageSize.thumb));
+        assertNotNull(book.getDescriptionShort());
+        assertNotNull(book.getPriceInCent());
+        assertNotNull(book.getTitle());
+    }
+
+    @Test
     public void testGetBookLinks() throws IOException {
 
         // Direkt Download link
-        Book book = lib.getBookWithDetails(155976);
+        Book book = lib.getBookWithDetails(PageLoader.PROGRESS_CALLBACK_DUMMY, 155976);
         assertNotNull(book);
 
         // Link to revisions
-        book = lib.getBookWithDetails(142475);
+        book = lib.getBookWithDetails(PageLoader.PROGRESS_CALLBACK_DUMMY, 142475);
         assertNotNull(book);
     }
 
