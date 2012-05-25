@@ -2,7 +2,6 @@ package com.unleashyouradventure.swapi.retriever;
 
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.jsoup.Jsoup;
@@ -17,6 +16,8 @@ import com.unleashyouradventure.swapi.cache.NoCache;
 import com.unleashyouradventure.swapi.load.LoginHelper;
 import com.unleashyouradventure.swapi.load.PageLoader;
 import com.unleashyouradventure.swapi.load.PageLoader.ProgressCallback;
+import com.unleashyouradventure.swapi.util.ParseUtils;
+import com.unleashyouradventure.swapi.util.ParseUtils.Parser;
 
 public class BookListRetriever {
 
@@ -88,11 +89,21 @@ public class BookListRetriever {
         }
     }
 
+    public enum AdultContent {
+        /**
+         * Use no parameter 'adult' but rely on the Smashwords mechanism: For
+         * not logged in users its off, for logged in users it depends on the
+         * user settings.
+         */
+        swdefault, on, off;
+    }
+
     private final static Logger log = Logger.getLogger(BookListRetriever.class.getName());
 
     private PageLoader loader;
     private LoginHelper login;
     private Cache cache = new NoCache();
+    private AdultContent adultContent = AdultContent.swdefault;
 
     public BookListRetriever(PageLoader loader, LoginHelper login) {
         this.loader = loader;
@@ -145,7 +156,7 @@ public class BookListRetriever {
     }
 
     public BookList getBooks(ProgressCallback progressCallback, String url) throws IOException {
-
+        url = addAdultContentParam(url);
         BookList books = cache.getBooks(url);
         if (books == null) {
             books = new BookList();
@@ -153,6 +164,16 @@ public class BookListRetriever {
         }
 
         return books;
+    }
+
+    private String addAdultContentParam(String url) {
+        if (this.adultContent == AdultContent.on || this.adultContent == AdultContent.off) {
+            String delim = url.contains("?") ? "&" : "?";
+            StringBuilder b = new StringBuilder(url);
+            b.append(delim).append("adult=").append(this.adultContent.name());
+            url = b.toString();
+        }
+        return url;
     }
 
     private void loadBooksIntoList(ProgressCallback progress, String url, BookList books) throws IOException {
@@ -254,10 +275,7 @@ public class BookListRetriever {
                 return 0;
             } else {
                 txt = new StringTrimmer(txt).getAfterNext("Price: $").getBeforeNext("USD").toString();
-                txt = txt.replace(".", "");
-                txt = txt.replace(" ", "");
-                Integer price = Integer.valueOf(txt);
-                return price;
+                return ParseUtils.parsePrice(txt);
             }
         }
     };
@@ -279,21 +297,15 @@ public class BookListRetriever {
         }
     };
 
-    private static abstract class Parser<T> {
-
-        public T parse(Element element) {
-            try {
-                return parseElement(element);
-            } catch (Exception e) {
-                log.log(Level.WARNING, "Parse error, Element: " + element.toString(), e);
-            }
-            return null;
-        }
-
-        protected abstract T parseElement(Element element);
-    }
-
     public void setCache(Cache cache) {
         this.cache = cache;
+    }
+
+    public AdultContent getAdultContent() {
+        return adultContent;
+    }
+
+    public void setAdultContent(AdultContent adultFilter) {
+        this.adultContent = adultFilter;
     }
 }
