@@ -83,13 +83,14 @@ public class BookRetriever {
         Element elem = doc.select("div [itemtype=http://data-vocabulary.org/Product]").first();
         book.setAuthor(authorParser.parse(elem));
         book.setCoverUrl(coverUrlParser.parse(elem));
-        book.setDescriptionShort(descriptionParser.parse(elem));
+        book.setDescriptionShort(descriptionShortParser.parse(elem));
         book.setPriceInCent(priceParser.parse(elem));
         book.setTitle(titleParser.parse(doc));
     }
 
     private void loadBookDetails(String rawPage, Document doc, Book book) throws IOException {
         book.setBookOwned(rawPage.contains("<a href=\"#download\">You own it!</a>"));
+        book.setDescriptionLong(descriptionLongParser.parse(doc));
         loadDownloadUrls(doc, book);
     }
 
@@ -110,11 +111,20 @@ public class BookRetriever {
         }
     };
 
-    private final static Parser<String> descriptionParser = new Parser<String>() {
+    private final static Parser<String> descriptionShortParser = new Parser<String>() {
         @Override
         protected String parseElement(Element element) {
             Element span = element.select("span[itemprop=description]").first();
             return span.text();
+        }
+    };
+
+    private final static Parser<String> descriptionLongParser = new Parser<String>() {
+        @Override
+        protected String parseElement(Element element) {
+            Element span = element.select("span[id=longdescr_full]").first();
+            String txt = new StringTrimmer(span.text()).getBeforeNext("(Less)").toString();
+            return txt;
         }
     };
 
