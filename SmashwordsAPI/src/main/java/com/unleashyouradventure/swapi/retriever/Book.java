@@ -73,6 +73,7 @@ public class Book {
     private boolean isBookOwned;
     private boolean isBookDetailsAdded;
     private Map<FileType, List<Download>> downloads = new HashMap<FileType, List<Download>>();
+    private String descriptionLong;
 
     public long getId() {
         return id;
@@ -172,5 +173,17 @@ public class Book {
 
     public Set<FileType> getFileTypes() {
         return this.downloads.keySet();
+    }
+
+    public boolean isBookOwned() {
+        return isBookOwned;
+    }
+
+    public String getDescriptionLong() {
+        return this.descriptionLong;
+    }
+
+    public void setDescriptionLong(String descriptionLong) {
+        this.descriptionLong = descriptionLong;
     }
 }
