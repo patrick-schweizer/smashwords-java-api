@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.sw.access.OnOfflineTest;
+import com.unleashyouradventure.swapi.Smashwords;
 import com.unleashyouradventure.swapi.load.LoginHelper;
 import com.unleashyouradventure.swapi.load.PageLoader;
 import com.unleashyouradventure.swapi.retriever.Book;
@@ -40,7 +41,8 @@ public class BookListRetrieverTest extends OnOfflineTest {
             assertTrue("System property " + SystemProperty.swUsername + " is missing!",
                     password != null && !password.isEmpty());
         }
-        LoginHelper login = new LoginHelper(pageLoader, username, password);
+        Smashwords sw = new Smashwords(username, password, this.pageLoader);
+        LoginHelper login = new LoginHelper(sw, username, password);
         lib = new BookListRetriever(this.pageLoader, login);
     }
 
