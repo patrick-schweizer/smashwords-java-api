@@ -7,15 +7,15 @@ import java.util.logging.Logger;
 
 import org.junit.Test;
 
+import com.unleashyouradventure.swapi.Smashwords;
 import com.unleashyouradventure.swapi.load.LoginHelper;
-import com.unleashyouradventure.swapi.load.PageLoader;
 
 public class LoginHelperTest {
 
     @Test
     public void testLogin() throws IOException {
         setLogging();
-        LoginHelper login = new LoginHelper(new PageLoader(), "patrick@schweizer-ing.com", "StmFoPnf");
+        LoginHelper login = new LoginHelper(new Smashwords(null, null), null, null);
         assertTrue(login.logIn());
     }
 
