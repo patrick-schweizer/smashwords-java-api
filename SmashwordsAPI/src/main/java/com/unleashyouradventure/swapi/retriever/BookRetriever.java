@@ -89,7 +89,7 @@ public class BookRetriever {
     }
 
     private void loadBookDetails(String rawPage, Document doc, Book book) throws IOException {
-        book.setBookOwned(rawPage.contains("<a href=\"#download\">You own it!</a>"));
+        book.setBookOwned(rawPage.contains("You own it!"));
         book.setDescriptionLong(descriptionLongParser.parse(doc));
         loadDownloadUrls(doc, book);
     }
