@@ -24,6 +24,7 @@ public class Smashwords {
     private BookListRetriever bookList;
     private BookRetriever bookRetriever;
     private BookCategoryRetriever bookCategoryRetriever = new BookCategoryRetriever();
+    private Cache cache;
 
     public Smashwords(String username, String password) {
         this(username, password, new PageLoader());
@@ -31,7 +32,7 @@ public class Smashwords {
 
     public Smashwords(String username, String password, PageLoader loader) {
         this.loader = loader;
-        login = new LoginHelper(loader, username, password);
+        login = new LoginHelper(this, username, password);
         bookList = new BookListRetriever(loader, login);
         this.bookRetriever = new BookRetriever(loader, login);
     }
@@ -58,8 +59,13 @@ public class Smashwords {
     }
 
     public void setCache(Cache cache) {
+        this.cache = cache;
         this.bookList.setCache(cache);
         this.bookRetriever.setCache(cache);
+    }
+
+    public Cache getCache() {
+        return this.cache;
     }
 
     public PageLoader getLoader() {
