@@ -20,4 +20,12 @@ public interface Cache {
     void putBook(Book book);
 
     void putBooks(String url, BookList books);
+
+    void removeAllBookDetails();
+
+    /**
+     * Removed the book list for the given URL from cache. The books within the
+     * list are still cached however (they might be referenced by another list)
+     */
+    void remove(String url);
 }
