@@ -28,4 +28,11 @@ public class ParseUtils {
         Integer price = Integer.valueOf(txt);
         return price;
     }
+
+    public static boolean equals(String a, String b) {
+        if (a == null)
+            return b == null;
+        else
+            return a.equals(b);
+    }
 }
