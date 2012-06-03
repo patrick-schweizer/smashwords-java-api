@@ -21,4 +21,12 @@ public class NoCache implements Cache {
     public void putBooks(String url, BookList books) {
         // Do nothing, since we don't cache at all
     }
+
+    public void removeAllBookDetails() {
+        // Do nothing, since we don't cache at all
+    }
+
+    public void remove(String url) {
+        // Do nothing, since we don't cache at all
+    }
 }

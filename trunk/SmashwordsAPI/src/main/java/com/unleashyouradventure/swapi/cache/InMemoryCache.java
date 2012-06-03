@@ -29,4 +29,17 @@ public class InMemoryCache implements Cache {
             putBook(book);
         }
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void remove(String url) {
+        lists.remove(url);
+    }
+
+    public void removeAllBookDetails() {
+        for (Book book : this.books.values()) {
+            book.setBookDetailsAdded(false);
+        }
+    }
 }
