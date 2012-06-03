@@ -5,22 +5,33 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.unleashyouradventure.swapi.Smashwords;
+import com.unleashyouradventure.swapi.retriever.BookListRetriever;
+import com.unleashyouradventure.swapi.util.ParseUtils;
 
 public class LoginHelper {
-    private PageLoader loader;
+    private Smashwords sw;
     private boolean isLoggedIn = false;
     private String username;
     private String password;
 
-    public LoginHelper(PageLoader loader, String username, String password) {
-        this.loader = loader;
+    public LoginHelper(Smashwords sw, String username, String password) {
+        this.sw = sw;
         configure(username, password);
     }
 
-    public void configure(String username, String password) {
-        this.username = username;
-        this.password = password;
-        isLoggedIn = false;
+    /** @return did the username or passwort change? */
+    public boolean configure(String username, String password) {
+        boolean hasChanged = !ParseUtils.equals(this.username, username) || !ParseUtils.equals(this.username, username);
+        if (hasChanged) {
+            this.username = username;
+            this.password = password;
+            isLoggedIn = false;
+            // Invalidate library cache
+            sw.getCache().remove(BookListRetriever.URL_LIBRARY);
+            sw.getCache().removeAllBookDetails(); // Book details contain info
+                                                  // if book was bought by user
+        }
+        return hasChanged;
     }
 
     public boolean logIn() throws IOException {
@@ -33,8 +44,8 @@ public class LoginHelper {
         params.put("password", password);
         params.put("secToken", "");
 
-        loader.postPage(url, params);
-        String html = loader.getPage(Smashwords.BASE_URL);
+        sw.getLoader().postPage(url, params);
+        String html = sw.getLoader().getPage(Smashwords.BASE_URL);
         updateLoginStatus(html);
         return isLoggedIn;
     }
@@ -60,5 +71,13 @@ public class LoginHelper {
 
     private boolean isNotEmpty(String s) {
         return s != null && s.trim().length() > 0;
+    }
+
+    public boolean isLoggedIn() {
+        return isLoggedIn;
+    }
+
+    public void logOut() throws IOException {
+        sw.getLoader().getPage(Smashwords.BASE_URL + "/auth/logout");
     }
 }
