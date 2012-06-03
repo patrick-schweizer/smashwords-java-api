@@ -99,7 +99,7 @@ public class BookListRetriever {
     }
 
     private final static Logger log = Logger.getLogger(BookListRetriever.class.getName());
-
+    public final static String URL_LIBRARY = Smashwords.BASE_URL + "/library";
     private PageLoader loader;
     private LoginHelper login;
     private Cache cache = new NoCache();
@@ -152,7 +152,7 @@ public class BookListRetriever {
 
     public BookList getBooksFromLibary(ProgressCallback progressCallback) throws IOException {
         login.loginIfNecessary();
-        return getBooks(progressCallback, Smashwords.BASE_URL + "/library");
+        return getBooks(progressCallback, BookListRetriever.URL_LIBRARY);
     }
 
     public BookList getBooks(ProgressCallback progressCallback, String url) throws IOException {
