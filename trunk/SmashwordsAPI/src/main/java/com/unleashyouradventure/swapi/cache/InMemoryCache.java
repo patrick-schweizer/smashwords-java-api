@@ -10,6 +10,17 @@ public class InMemoryCache implements Cache {
 
     private Map<Long, Book> books = new HashMap<Long, Book>();
     private Map<String, BookList> lists = new HashMap<String, BookList>();
+    int maxBooks = 500;
+    int maxLists = 20;
+
+    public InMemoryCache() {
+        // use default values
+    }
+
+    public InMemoryCache(int maxBooks, int maxLists) {
+        this.maxBooks = maxBooks;
+        this.maxLists = maxLists;
+    }
 
     public Book getBook(long id) {
         return books.get(id);
@@ -42,4 +53,14 @@ public class InMemoryCache implements Cache {
             book.setBookDetailsAdded(false);
         }
     }
+
+    // private final static class CacheMap<K, V> extends LinkedHashMap<K, V> {
+    //
+    // public CacheMap(){
+    // super(maxEntries + 1, 1, true);
+    // }
+    // protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+    // return size() > MAX_ENTRIES;
+    // }
+    // }
 }
