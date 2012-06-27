@@ -74,6 +74,7 @@ public class Book {
     private boolean isBookDetailsAdded;
     private Map<FileType, List<Download>> downloads = new HashMap<FileType, List<Download>>();
     private String descriptionLong;
+    private double rating = -1;
 
     public long getId() {
         return id;
@@ -185,5 +186,15 @@ public class Book {
 
     public void setDescriptionLong(String descriptionLong) {
         this.descriptionLong = descriptionLong;
+    }
+
+    /** -1 indicates no rating yet */
+    public double getRating() {
+        return rating;
+    }
+
+    /** -1 indicates no rating yet */
+    public void setRating(double rating) {
+        this.rating = rating;
     }
 }
