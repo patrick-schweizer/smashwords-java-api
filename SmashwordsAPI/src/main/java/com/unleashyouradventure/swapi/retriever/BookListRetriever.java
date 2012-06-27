@@ -223,6 +223,7 @@ public class BookListRetriever {
         book.setCoverUrl(imgParser.parse(element));
         book.setPriceInCent(priceParser.parse(element));
         book.setDescriptionShort(shortDescriptionParser.parse(element));
+        book.setRating(ratingParser.parse(element));
         return book;
     }
 
@@ -294,6 +295,28 @@ public class BookListRetriever {
             String description = t.toString().trim();
             description = Jsoup.parseBodyFragment(description).text();
             return description;
+        }
+    };
+
+    private final static Parser<Double> ratingParser = new Parser<Double>() {
+
+        @Override
+        protected Double parseElement(Element element) {
+            if (element == null)
+                return null;
+            Element textDiv = element.getElementsByClass("text").first();
+            Element star = textDiv.select("img[src=" + Smashwords.BASE_URL + "/static/img/star.png]").last();
+            if (star == null) {
+                return getDefaultInCaseOfError(); // no rating
+            } else {
+                String text = star.nextElementSibling().text();
+                text = new StringTrimmer(text).getAfterNext("(").getBeforeNext(")").toString();
+                return Double.parseDouble(text);
+            }
+        }
+
+        protected Double getDefaultInCaseOfError() {
+            return Double.valueOf(-1);
         }
     };
 
