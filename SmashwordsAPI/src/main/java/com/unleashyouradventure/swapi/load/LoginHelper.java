@@ -21,7 +21,7 @@ public class LoginHelper {
 
     /** @return did the username or passwort change? */
     public boolean configure(String username, String password) {
-        boolean hasChanged = !ParseUtils.equals(this.username, username) || !ParseUtils.equals(this.username, username);
+        boolean hasChanged = !ParseUtils.equals(this.username, username) || !ParseUtils.equals(this.password, password);
         if (hasChanged) {
             this.username = username;
             this.password = password;
