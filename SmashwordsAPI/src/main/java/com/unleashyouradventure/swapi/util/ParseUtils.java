@@ -16,10 +16,14 @@ public class ParseUtils {
                 String elem = (element == null) ? "null" : element.toString();
                 log.log(Level.WARNING, "Parse error, Element: " + elem, e);
             }
-            return null;
+            return getDefaultInCaseOfError();
         }
 
         protected abstract T parseElement(Element element);
+
+        protected T getDefaultInCaseOfError() {
+            return null;
+        }
     }
 
     public static Integer parsePrice(String txt) {
