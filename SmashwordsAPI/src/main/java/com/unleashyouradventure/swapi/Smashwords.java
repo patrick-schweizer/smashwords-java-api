@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.unleashyouradventure.swapi.cache.Cache;
+import com.unleashyouradventure.swapi.cache.NoCache;
 import com.unleashyouradventure.swapi.load.LoginHelper;
 import com.unleashyouradventure.swapi.load.PageLoader;
 import com.unleashyouradventure.swapi.load.PageLoader.ProgressCallback;
@@ -24,7 +25,7 @@ public class Smashwords {
     private BookListRetriever bookList;
     private BookRetriever bookRetriever;
     private BookCategoryRetriever bookCategoryRetriever = new BookCategoryRetriever();
-    private Cache cache;
+    private Cache cache = new NoCache();
 
     public Smashwords(String username, String password) {
         this(username, password, new PageLoader());
@@ -32,8 +33,8 @@ public class Smashwords {
 
     public Smashwords(String username, String password, PageLoader loader) {
         this.loader = loader;
-        login = new LoginHelper(this, username, password);
-        bookList = new BookListRetriever(loader, login);
+        this.login = new LoginHelper(this, username, password);
+        this.bookList = new BookListRetriever(loader, login);
         this.bookRetriever = new BookRetriever(loader, login);
     }
 
