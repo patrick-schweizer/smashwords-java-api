@@ -92,6 +92,7 @@ public class BookRetriever {
         book.setBookOwned(rawPage.contains("You own it!"));
         book.setDescriptionLong(descriptionLongParser.parse(doc));
         loadDownloadUrls(doc, book);
+        book.setRating(ratingParser.parse(doc));
     }
 
     private final static Parser<String> authorParser = new Parser<String>() {
@@ -142,6 +143,22 @@ public class BookRetriever {
         protected String parseElement(Element element) {
             Element h2 = element.getElementsByClass("bookpage_title_heading").first();
             return h2.text();
+        }
+    };
+
+    private final static Parser<Double> ratingParser = new Parser<Double>() {
+        @Override
+        protected Double parseElement(Element element) {
+            Element span = element.select("span[itemtype=http://data-vocabulary.org/Review-aggregate]").first();
+            if (span != null) {
+                span = span.select("span[itemprop=rating]").first();
+                return Double.valueOf(span.text());
+            }
+            return getDefaultInCaseOfError();
+        }
+
+        protected Double getDefaultInCaseOfError() {
+            return Double.valueOf(-1);
         }
     };
 
