@@ -35,10 +35,10 @@ public class InMemoryCache implements Cache {
     }
 
     public void putBooks(String url, BookList books) {
-        lists.put(url, books);
         for (Book book : books) {
             putBook(book);
         }
+        lists.put(url, books);
     }
 
     /**
