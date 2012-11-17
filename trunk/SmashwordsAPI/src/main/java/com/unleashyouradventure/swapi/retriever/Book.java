@@ -161,6 +161,10 @@ public class Book {
         return Smashwords.BASE_URL + "/cart/add/" + this.id;
     }
 
+    public String getUrlForBookDetails() {
+        return Smashwords.BASE_URL + "/books/view/" + this.id;
+    }
+
     public boolean canBookBeDownloaded() {
         return this.isBookOwned || this.priceInCent == 0;
     }
