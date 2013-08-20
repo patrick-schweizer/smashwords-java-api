@@ -9,7 +9,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.jsing.common.string.StringTrimmer;
 import com.unleashyouradventure.swapi.Smashwords;
 import com.unleashyouradventure.swapi.cache.Cache;
 import com.unleashyouradventure.swapi.cache.NoCache;
@@ -18,12 +17,12 @@ import com.unleashyouradventure.swapi.load.PageLoader;
 import com.unleashyouradventure.swapi.load.PageLoader.ProgressCallback;
 import com.unleashyouradventure.swapi.util.ParseUtils;
 import com.unleashyouradventure.swapi.util.ParseUtils.Parser;
+import com.unleashyouradventure.swapi.util.StringTrimmer;
 
 public class BookListRetriever {
 
     public enum Sortby {
-        any("Any"), newest("Newest"), bestsellers("Best Sellers"), unitssold("Units Sold"), downloads("Most Downloads"), highlyrated(
-                "Highest Rated");
+        any("Any"), newest("Newest"), bestsellers("Best Sellers"), unitssold("Units Sold"), downloads("Most Downloads"), highlyrated("Highest Rated");
         private String displayName;
 
         Sortby(String displayName) {
@@ -40,8 +39,7 @@ public class BookListRetriever {
     }
 
     public enum Price {
-        anyPrice("Any price"), free("Free"), $0_99orless("$0.99 or less", ".99"), $2_99orless("$2.99 or less", "2.99"), $5_99orless(
-                "$5.99 or less", "5.99"), $9_99orless("$9.99 or less", "9.99");
+        anyPrice("Any price"), free("Free"), $0_99orless("$0.99 or less", ".99"), $2_99orless("$2.99 or less", "2.99"), $5_99orless("$5.99 or less", "5.99"), $9_99orless("$9.99 or less", "9.99");
         private final String urlName;
         private final String displayName;
 
@@ -118,13 +116,11 @@ public class BookListRetriever {
         return getBooks(progressCallback, Smashwords.BASE_URL + "/profile/view/" + author);
     }
 
-    public BookList getBooksByCategory(ProgressCallback progressCallback, BookCategory category, Sortby sortby,
-            Price price) throws IOException {
+    public BookList getBooksByCategory(ProgressCallback progressCallback, BookCategory category, Sortby sortby, Price price) throws IOException {
         return getBooksByCategory(progressCallback, category, sortby, price, Length.any);
     }
 
-    public BookList getBooksByCategory(ProgressCallback progressCallback, BookCategory category, Sortby sortby)
-            throws IOException {
+    public BookList getBooksByCategory(ProgressCallback progressCallback, BookCategory category, Sortby sortby) throws IOException {
         return getBooksByCategory(progressCallback, category, sortby, Price.anyPrice, Length.any);
     }
 
@@ -139,8 +135,7 @@ public class BookListRetriever {
         return getBooks(progressCallback, url.toString());
     }
 
-    public BookList getBooksByCategory(ProgressCallback progressCallback, BookCategory category, Sortby sortby,
-            Price price, Length length) throws IOException {
+    public BookList getBooksByCategory(ProgressCallback progressCallback, BookCategory category, Sortby sortby, Price price, Length length) throws IOException {
         StringBuilder url = new StringBuilder();
         url.append(Smashwords.BASE_URL).append("/books/category/");
         url.append(category.getId()).append("/");
@@ -310,7 +305,7 @@ public class BookListRetriever {
                 return getDefaultInCaseOfError(); // no rating
             } else {
                 String text = star.nextElementSibling().text();
-                text = new StringTrimmer(text).getAfterNext("(").getBeforeNext(")").toString();
+                text = new StringTrimmer(text).getAfterNext("(").getBeforeNext("from").toString().trim();
                 return Double.parseDouble(text);
             }
         }

@@ -28,9 +28,9 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreProtocolPNames;
 
-import com.jsing.common.string.StringTrimmer;
 import com.unleashyouradventure.swapi.load.httpclient.AllowAllRedirectsHandler;
 import com.unleashyouradventure.swapi.util.IOUtil;
+import com.unleashyouradventure.swapi.util.StringTrimmer;
 
 public class PageLoader {
 

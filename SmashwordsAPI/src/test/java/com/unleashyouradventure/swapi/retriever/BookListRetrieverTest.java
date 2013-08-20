@@ -32,10 +32,8 @@ public class BookListRetrieverTest extends OnOfflineTest {
         String username = System.getProperty(SystemProperty.swUsername.name());
         String password = System.getProperty(SystemProperty.swPassword.name());
         if (this.online) {
-            assertTrue("System property " + SystemProperty.swUsername + " is missing!",
-                    username != null && !username.isEmpty());
-            assertTrue("System property " + SystemProperty.swUsername + " is missing!",
-                    password != null && !password.isEmpty());
+            assertTrue("System property " + SystemProperty.swUsername + " is missing!", username != null && !username.isEmpty());
+            assertTrue("System property " + SystemProperty.swUsername + " is missing!", password != null && !password.isEmpty());
         }
         Smashwords sw = new Smashwords(username, password, this.pageLoader);
         LoginHelper login = new LoginHelper(sw, username, password);
@@ -65,18 +63,20 @@ public class BookListRetrieverTest extends OnOfflineTest {
         for (Sortby sortby : Sortby.values()) {
             for (Price price : Price.values()) {
                 for (Length length : Length.values()) {
-                    List<Book> books = lib.getBooksByCategory(PageLoader.PROGRESS_CALLBACK_DUMMY, rootCategory, sortby,
-                            price, length);
-                    assertTrue(books.size() > 0);
+                    List<Book> books = lib.getBooksByCategory(PageLoader.PROGRESS_CALLBACK_DUMMY, rootCategory, sortby, price, length);
+                    assertTrue(books.size() > 0 || isException(sortby, price, length));
                 }
             }
         }
     }
 
+    private boolean isException(Sortby sortby, Price price, Length length) {
+        return Sortby.unitssold == sortby && price == Price.free; // Smashwords doesn't give a result for this
+    }
+
     @Test
     public void testGetNext() throws IOException {
-        BookList books = lib.getBooksByCategory(PageLoader.PROGRESS_CALLBACK_DUMMY, rootCategory, Sortby.newest,
-                Price.anyPrice, Length.any);
+        BookList books = lib.getBooksByCategory(PageLoader.PROGRESS_CALLBACK_DUMMY, rootCategory, Sortby.newest, Price.anyPrice, Length.any);
         assertTrue(books.hasMoreElementsToLoad());
     }
 }
