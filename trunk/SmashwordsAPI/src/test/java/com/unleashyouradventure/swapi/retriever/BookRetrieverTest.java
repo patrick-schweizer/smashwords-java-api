@@ -28,10 +28,8 @@ public class BookRetrieverTest extends OnOfflineTest {
         String username = System.getProperty(SystemProperty.swUsername.name());
         String password = System.getProperty(SystemProperty.swPassword.name());
         if (this.online) {
-            assertTrue("System property " + SystemProperty.swUsername + " is missing!",
-                    username != null && !username.isEmpty());
-            assertTrue("System property " + SystemProperty.swUsername + " is missing!",
-                    password != null && !password.isEmpty());
+            assertTrue("System property " + SystemProperty.swUsername + " is missing!", username != null && !username.isEmpty());
+            assertTrue("System property " + SystemProperty.swUsername + " is missing!", password != null && !password.isEmpty());
         }
         Smashwords sw = new Smashwords(username, password, this.pageLoader);
         LoginHelper login = new LoginHelper(sw, username, password);
@@ -54,7 +52,7 @@ public class BookRetrieverTest extends OnOfflineTest {
     public void testGetBookLinks() throws IOException {
 
         // Direkt Download link
-        Book book = lib.getBookWithDetails(PageLoader.PROGRESS_CALLBACK_DUMMY, 155976);
+        Book book = lib.getBookWithDetails(PageLoader.PROGRESS_CALLBACK_DUMMY, 145431);
         assertNotNull(book);
 
         // Link to revisions

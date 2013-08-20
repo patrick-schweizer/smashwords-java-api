@@ -9,9 +9,8 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
-import com.jsing.common.string.StringTrimmer;
-import com.unleashyouradventure.swapi.Smashwords;
 import com.unleashyouradventure.swapi.load.PageLoader;
+import com.unleashyouradventure.swapi.util.StringTrimmer;
 
 /**
  * Simulates the Smashwords server by reading from the file system. Useful for

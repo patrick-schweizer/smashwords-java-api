@@ -13,14 +13,13 @@ import com.unleashyouradventure.swapi.Smashwords;
 public class LoginHelperTest {
 
     enum SystemProperty {
-        swUser, swPassword
+        swUsername, swPassword
     };
 
     @Test
     public void testLogin() throws IOException {
         setLogging();
-        Smashwords sw = new Smashwords(getSystemProperty(SystemProperty.swUser),
-                getSystemProperty(SystemProperty.swPassword));
+        Smashwords sw = new Smashwords(getSystemProperty(SystemProperty.swUsername), getSystemProperty(SystemProperty.swPassword));
         LoginHelper login = sw.getLogin();
         assertTrue(login.logIn());
     }

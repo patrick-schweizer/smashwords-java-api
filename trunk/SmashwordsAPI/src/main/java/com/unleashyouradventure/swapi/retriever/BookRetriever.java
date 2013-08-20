@@ -11,7 +11,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.jsing.common.string.StringTrimmer;
 import com.unleashyouradventure.swapi.Smashwords;
 import com.unleashyouradventure.swapi.cache.Cache;
 import com.unleashyouradventure.swapi.cache.NoCache;
@@ -21,6 +20,7 @@ import com.unleashyouradventure.swapi.load.PageLoader.ProgressCallback;
 import com.unleashyouradventure.swapi.retriever.Book.FileType;
 import com.unleashyouradventure.swapi.util.ParseUtils;
 import com.unleashyouradventure.swapi.util.ParseUtils.Parser;
+import com.unleashyouradventure.swapi.util.StringTrimmer;
 
 public class BookRetriever {
     private final static Logger log = Logger.getLogger(BookRetriever.class.getName());
@@ -135,6 +135,10 @@ public class BookRetriever {
             Element span = element.select("span[itemprop=price]").first();
             String txt = span.text();
             return ParseUtils.parsePrice(txt);
+        }
+
+        protected Integer getDefaultInCaseOfError() {
+            return Integer.valueOf(0);
         }
     };
 

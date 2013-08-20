@@ -6,9 +6,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import com.jsing.common.string.StringTrimmer;
 import com.unleashyouradventure.swapi.Smashwords;
-import com.unleashyouradventure.swapi.retriever.BookCategory;
+import com.unleashyouradventure.swapi.util.StringTrimmer;
 
 public class BookCategoryRetrieverGenerator {
 
@@ -33,8 +32,7 @@ public class BookCategoryRetrieverGenerator {
     }
 
     private void createCode(BookCategory cat) {
-        b.append("BookCategory cat").append(cat.getId()).append(" = new BookCategory(").append(cat.getId())
-                .append(", \"").append(cat.toString()).append("\");\n");
+        b.append("BookCategory cat").append(cat.getId()).append(" = new BookCategory(").append(cat.getId()).append(", \"").append(cat.toString()).append("\");\n");
         if (cat.getParent() != null) {
             b.append("cat").append(cat.getParent().getId()).append(".addChild(cat").append(cat.getId()).append(");\n");
         }
