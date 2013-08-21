@@ -23,7 +23,7 @@ public class BookRetrieverTest extends OnOfflineTest {
     private BookRetriever lib;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         super.setUp();
         String username = System.getProperty(SystemProperty.swUsername.name());
         String password = System.getProperty(SystemProperty.swPassword.name());
@@ -33,19 +33,22 @@ public class BookRetrieverTest extends OnOfflineTest {
         }
         Smashwords sw = new Smashwords(username, password, this.pageLoader);
         LoginHelper login = new LoginHelper(sw, username, password);
+        login.loginIfNecessary();
+        assertTrue(login.isLoggedIn());
         lib = new BookRetriever(this.pageLoader, login);
     }
 
     @Test
     public void testGetBook() throws IOException {
-        Book book = lib.getBookWithDetails(PageLoader.PROGRESS_CALLBACK_DUMMY, 52);
+        Book book = lib.getBookWithDetails(PageLoader.PROGRESS_CALLBACK_DUMMY, 208326);
         assertNotNull(book);
         assertNotNull(book.getAuthor());
         assertNotNull(book.getCoverUrl(ImageSize.thumb));
         assertNotNull(book.getDescriptionShort());
         assertNotNull(book.getPriceInCent());
         assertNotNull(book.getTitle());
-        assertTrue(book.getRating() > 0);
+        assertTrue(book.isBookOwned());
+        // assertTrue(book.getRating() > 0);
     }
 
     @Test

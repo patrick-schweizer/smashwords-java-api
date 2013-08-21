@@ -27,7 +27,7 @@ public class BookListRetrieverTest extends OnOfflineTest {
     private BookCategory rootCategory = new BookCategory(1, "All");
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         super.setUp();
         String username = System.getProperty(SystemProperty.swUsername.name());
         String password = System.getProperty(SystemProperty.swPassword.name());
