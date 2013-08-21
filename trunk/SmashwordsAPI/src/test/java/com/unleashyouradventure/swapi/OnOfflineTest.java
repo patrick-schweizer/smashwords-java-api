@@ -11,7 +11,7 @@ public class OnOfflineTest {
     protected PageLoader pageLoader;
     protected boolean online = false;
 
-    public void setUp() {
+    public void setUp() throws Exception {
         // online or offline test?
         if ("true".equals(System.getProperty(SystemProperty.testOnline.name()))) {
             this.pageLoader = new PageLoader();
