@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.unleashyouradventure.swapi.LoggingHelper;
 import com.unleashyouradventure.swapi.OnOfflineTest;
 import com.unleashyouradventure.swapi.Smashwords;
 import com.unleashyouradventure.swapi.load.LoginHelper;
@@ -25,12 +26,14 @@ public class BookRetrieverTest extends OnOfflineTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        LoggingHelper.setLoggingAll();
         String username = System.getProperty(SystemProperty.swUsername.name());
         String password = System.getProperty(SystemProperty.swPassword.name());
         if (this.online) {
             assertTrue("System property " + SystemProperty.swUsername + " is missing!", username != null && !username.isEmpty());
             assertTrue("System property " + SystemProperty.swUsername + " is missing!", password != null && !password.isEmpty());
         }
+
         Smashwords sw = new Smashwords(username, password, this.pageLoader);
         LoginHelper login = new LoginHelper(sw, username, password);
         login.loginIfNecessary();
