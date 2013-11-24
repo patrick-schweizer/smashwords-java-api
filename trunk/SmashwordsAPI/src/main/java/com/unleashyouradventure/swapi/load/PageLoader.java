@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -28,6 +29,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreProtocolPNames;
 
+import com.unleashyouradventure.swapi.Smashwords;
 import com.unleashyouradventure.swapi.load.httpclient.AllowAllRedirectsHandler;
 import com.unleashyouradventure.swapi.util.IOUtil;
 import com.unleashyouradventure.swapi.util.StringTrimmer;
@@ -105,7 +107,7 @@ public class PageLoader {
         post.setHeader("Accept-Language", "de-de,de;q=0.8,en-us;q=0.5,en;q=0.3");
         post.setHeader("DNT", "1");
         post.setHeader("Host", "www.smashwords.com");
-        post.setHeader("Referer", "https://www.smashwords.com/");
+        post.setHeader("Referer", Smashwords.BASE_URL);
         post.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, false);
 
         List<NameValuePair> nvps = new ArrayList<NameValuePair>();
@@ -114,19 +116,15 @@ public class PageLoader {
             nvps.add(new BasicNameValuePair(param.getKey(), param.getValue()));
         }
 
-        // nvps.add(new BasicNameValuePair("secToken", ""));
-        // nvps.add(new BasicNameValuePair("email",
-        // "patrick@schweizer-ing.com"));
-        // nvps.add(new BasicNameValuePair("password", "StmFoPnf"));
-        // nvps.add(new BasicNameValuePair("submit", "Login"));
-
         post.setEntity(new UrlEncodedFormEntity(nvps, "UTF-8"));
         HttpResponse response = client.execute(post);
 
         ResponseHandler<String> responseHandler = new BasicResponseHandler();
         int statusCode = response.getStatusLine().getStatusCode();
         if (statusCode == 200) {
-            return responseHandler.handleResponse(response);
+            String html = responseHandler.handleResponse(response);
+            Logger.getLogger(this.getClass().getName()).fine("Response of login: " + html);
+            return html;
         }
         throw new IOException("Status " + statusCode + "received");
     }
