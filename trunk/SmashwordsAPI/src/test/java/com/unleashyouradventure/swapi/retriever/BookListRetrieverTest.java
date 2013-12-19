@@ -49,6 +49,7 @@ public class BookListRetrieverTest extends OnOfflineTest {
 
         book = books.get(1);
         assertEquals(0, book.getPriceInCent());
+        book.getCover_url(Book.ImageSize.thumb);
     }
 
     @Test
