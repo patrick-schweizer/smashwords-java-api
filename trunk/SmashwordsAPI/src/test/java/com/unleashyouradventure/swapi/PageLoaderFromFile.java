@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Map;
 
 import com.unleashyouradventure.swapi.load.PageLoader;
 import com.unleashyouradventure.swapi.util.StringTrimmer;
@@ -30,6 +31,10 @@ public class PageLoaderFromFile extends PageLoader {
         stream.close();
         String page = b.toString();
         return page;
+    }
+
+    public String postPage(String url, Map<String, String> params) throws IOException {
+        return getPage(url);
     }
 
     private InputStream getLocalFile(String url) {

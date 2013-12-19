@@ -55,7 +55,7 @@ public class BookListRetrieverTest extends OnOfflineTest {
     public void testGetBooksFromAuthor() throws IOException {
         List<Book> books = lib.getBooksFromAuthor(PageLoader.PROGRESS_CALLBACK_DUMMY, "UnleashYourAdventure");
         assertTrue(books.size() > 0);
-        assertTrue(books.get(0).getDescriptionShort().length() > 0);
+        assertTrue(books.get(0).getShort_description().length() > 0);
     }
 
     @Test

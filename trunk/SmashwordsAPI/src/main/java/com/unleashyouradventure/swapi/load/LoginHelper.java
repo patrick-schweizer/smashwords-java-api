@@ -44,14 +44,14 @@ public class LoginHelper {
         params.put("password", password);
         params.put("secToken", "");
 
-        sw.getLoader().postPage(url, params);
-        String html = sw.getLoader().getPage(Smashwords.BASE_URL);
+        String html = sw.getLoader().postPage(url, params);
+        // String html = sw.getLoader().getPage(Smashwords.BASE_URL);
         updateLoginStatus(html);
         return isLoggedIn;
     }
 
     public void updateLoginStatus(String html) {
-        this.isLoggedIn = html.contains("Log Out");
+        this.isLoggedIn = html.contains("window.angularData.user.loggedIn = true;");
     }
 
     public void loginIfNecessary() throws IOException {
