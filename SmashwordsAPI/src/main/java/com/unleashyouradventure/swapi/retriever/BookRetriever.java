@@ -18,6 +18,8 @@ import com.unleashyouradventure.swapi.load.LoginHelper;
 import com.unleashyouradventure.swapi.load.PageLoader;
 import com.unleashyouradventure.swapi.load.PageLoader.ProgressCallback;
 import com.unleashyouradventure.swapi.retriever.Book.FileType;
+import com.unleashyouradventure.swapi.retriever.json.Author;
+import com.unleashyouradventure.swapi.retriever.json.JPrice;
 import com.unleashyouradventure.swapi.util.ParseUtils;
 import com.unleashyouradventure.swapi.util.ParseUtils.Parser;
 import com.unleashyouradventure.swapi.util.StringTrimmer;
@@ -80,33 +82,46 @@ public class BookRetriever {
     }
 
     private void loadBookInformation(String rawPage, Document doc, Book book) {
-        Element elem = doc.select("div [itemtype=http://data-vocabulary.org/Product]").first();
-        book.setAuthor(authorParser.parse(elem));
-        book.setCoverUrl(coverUrlParser.parse(elem));
-        book.setDescriptionShort(descriptionShortParser.parse(elem));
-        book.setPriceInCent(priceParser.parse(elem));
+        // Element elem = doc.select("div [itemtype=http://data-vocabulary.org/Product]").first();
+        book.setAuthors(new ArrayList<Author>());
+        book.getAuthors().addAll(authorParser.parse(doc));
+        book.setCover_url(coverUrlParser.parse(doc));
+        book.setShort_description(descriptionShortParser.parse(doc));
+        book.addPrice(priceParser.parse(doc));
         book.setTitle(titleParser.parse(doc));
     }
 
     private void loadBookDetails(String rawPage, Document doc, Book book) throws IOException {
-        book.setBookOwned(rawPage.contains("You already own a copy"));
-        book.setDescriptionLong(descriptionLongParser.parse(doc));
+        book.setBookOwned(rawPage.contains("Another Copy"));
+        book.setLong_description(descriptionLongParser.parse(doc));
         loadDownloadUrls(doc, book);
         book.setRating(ratingParser.parse(doc));
     }
 
-    private final static Parser<String> authorParser = new Parser<String>() {
+    private final static Parser<List<Author>> authorParser = new Parser<List<Author>>() {
         @Override
-        protected String parseElement(Element element) {
-            Element a = element.select("a[href~=https://www.smashwords.com/profile/view/.*]").first();
-            return a.text();
+        protected List<Author> parseElement(Element element) {
+
+            Elements elements = element.select("a[href~=https://www.smashwords.com/profile/view/.*]");
+            List<Author> authors = new ArrayList<Author>();
+            for (Element it : elements) {
+                if (!it.text().contains("Profile")) {
+                    Author author = new Author();
+                    String name = it.text();
+                    StringTrimmer userName = new StringTrimmer(it.attr("href")).getAfterLast("/");
+                    author.setDisplay_name(name);
+                    author.setUsername(userName.toString());
+                    authors.add(author);
+                }
+            }
+            return authors;
         }
     };
 
     private final static Parser<String> coverUrlParser = new Parser<String>() {
         @Override
         protected String parseElement(Element element) {
-            Element img = element.select("img[itemprop=image]").first();
+            Element img = element.select("img[class=cover-thumbnail]").first();
             String url = new StringTrimmer(img.attr("src")).getBeforeLast("-thumb").toString();
             return url;
         }
@@ -115,7 +130,7 @@ public class BookRetriever {
     private final static Parser<String> descriptionShortParser = new Parser<String>() {
         @Override
         protected String parseElement(Element element) {
-            Element span = element.select("span[itemprop=description]").first();
+            Element span = element.select("div[class=well]").first();
             return span.text();
         }
     };
@@ -123,30 +138,43 @@ public class BookRetriever {
     private final static Parser<String> descriptionLongParser = new Parser<String>() {
         @Override
         protected String parseElement(Element element) {
-            Element span = element.select("span[id=longdescr_full]").first();
-            String txt = new StringTrimmer(span.text()).getBeforeNext("(Less)").toString();
+            Element span = element.select("div#longDescription").first();
+            String txt = new StringTrimmer(span.text()).toString();
             return txt;
         }
     };
 
-    private final static Parser<Integer> priceParser = new Parser<Integer>() {
+    private final static Parser<JPrice> priceParser = new Parser<JPrice>() {
         @Override
-        protected Integer parseElement(Element element) {
-            Element span = element.select("span[itemprop=price]").first();
-            String txt = span.text();
-            return ParseUtils.parsePrice(txt);
+        protected JPrice parseElement(Element element) {
+            Element elem = element.select("h3.panel-title").first();
+            String txt = elem.text();
+            double priceValue;
+            if (txt.contains("Price: Free!")) {
+                priceValue = 0;
+            } else {
+                txt = new StringTrimmer(txt).getAfterNext("Price: $").getBeforeNext(" USD").toString();
+                priceValue = ParseUtils.parsePrice(txt);
+            }
+            JPrice price = new JPrice();
+            price.setAmount(priceValue);
+            price.setCurrency("USD");
+            return price;
         }
 
-        protected Integer getDefaultInCaseOfError() {
-            return Integer.valueOf(0);
+        protected JPrice getDefaultInCaseOfError() {
+            JPrice price = new JPrice();
+            price.setAmount(0);
+            price.setCurrency("USD");
+            return price;
         }
     };
 
     private final static Parser<String> titleParser = new Parser<String>() {
         @Override
         protected String parseElement(Element element) {
-            Element h2 = element.getElementsByClass("bookpage_title_heading").first();
-            return h2.text();
+            Element h1 = element.getElementsByTag("h1").first();
+            return h1.text();
         }
     };
 
@@ -167,34 +195,16 @@ public class BookRetriever {
     };
 
     private void loadDownloadUrls(Document doc, Book book) throws IOException {
-
-        Element row;
-        Element td;
         String url;
-        for (FileType type : FileType.values()) {
-            Elements elements = doc.select("table tr td b:contains(" + type.getSmashwordsName() + ")");
-            if (elements.size() > 0) {
-                Element element = elements.get(0);
-                row = element.parent().parent();
-                td = row.children().last();
-                if (td.children().size() == 0)
-                    continue; // Format not available
-                url = td.child(0).attr("href");
-                String title;
-                if (url.endsWith(type.name().toLowerCase())) {
-                    // Direct download link
-                    title = "Newest";
-                } else {
-                    // Leads to page with all revisions. We generate the link
-                    // ourself
-                    url = url.replace("null", "newest");
-                    url = url + "." + type.name().toLowerCase();
-                    title = "Revision Overview";
-                }
-                List<Book.Download> downloads = new ArrayList<Book.Download>();
-                downloads.add(new Book.Download(title, new URL(url)));
-                book.setBookDownloads(type, downloads);
-            }
+        FileType type;
+        Element downloadSection = doc.select("div#download").first();
+        Elements elements = downloadSection.select("a");
+        for (Element a : elements) {
+            url = Smashwords.BASE_URL + a.attr("href");
+            type = FileType.getByEnding(new StringTrimmer(url).getAfterLast(".").toString());
+            List<Book.Download> downloads = new ArrayList<Book.Download>();
+            downloads.add(new Book.Download("Newest", new URL(url)));
+            book.setBookDownloads(type, downloads);
         }
         book.setBookDetailsAdded(true);
     }

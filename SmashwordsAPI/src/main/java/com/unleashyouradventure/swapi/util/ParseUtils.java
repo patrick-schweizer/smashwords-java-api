@@ -26,10 +26,9 @@ public class ParseUtils {
         }
     }
 
-    public static Integer parsePrice(String txt) {
-        txt = txt.replace(".", "");
+    public static Double parsePrice(String txt) {
         txt = txt.trim();
-        Integer price = Integer.valueOf(txt);
+        Double price = Double.valueOf(txt);
         return price;
     }
 

@@ -45,9 +45,9 @@ public class BookRetrieverTest extends OnOfflineTest {
     public void testGetBook() throws IOException {
         Book book = lib.getBookWithDetails(PageLoader.PROGRESS_CALLBACK_DUMMY, 208326);
         assertNotNull(book);
-        assertNotNull(book.getAuthor());
-        assertNotNull(book.getCoverUrl(ImageSize.thumb));
-        assertNotNull(book.getDescriptionShort());
+        assertNotNull(book.getAuthors().get(0));
+        assertNotNull(book.getCover_url(ImageSize.thumb));
+        assertNotNull(book.getShort_description());
         assertNotNull(book.getPriceInCent());
         assertNotNull(book.getTitle());
         assertTrue(book.isBookOwned());

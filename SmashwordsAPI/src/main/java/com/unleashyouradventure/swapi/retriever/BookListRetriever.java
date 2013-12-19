@@ -2,6 +2,8 @@ package com.unleashyouradventure.swapi.retriever;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.jsoup.Jsoup;
@@ -9,12 +11,17 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.unleashyouradventure.swapi.Smashwords;
 import com.unleashyouradventure.swapi.cache.Cache;
 import com.unleashyouradventure.swapi.cache.NoCache;
 import com.unleashyouradventure.swapi.load.LoginHelper;
 import com.unleashyouradventure.swapi.load.PageLoader;
 import com.unleashyouradventure.swapi.load.PageLoader.ProgressCallback;
+import com.unleashyouradventure.swapi.retriever.json.Author;
+import com.unleashyouradventure.swapi.retriever.json.JPrice;
+import com.unleashyouradventure.swapi.retriever.json.JsonResult;
 import com.unleashyouradventure.swapi.util.ParseUtils;
 import com.unleashyouradventure.swapi.util.ParseUtils.Parser;
 import com.unleashyouradventure.swapi.util.StringTrimmer;
@@ -145,9 +152,31 @@ public class BookListRetriever {
         return getBooks(progressCallback, url.toString());
     }
 
-    public BookList getBooksFromLibary(ProgressCallback progressCallback) throws IOException {
+    public BookList getBooksFromLibary(ProgressCallback progress) throws IOException {
         login.loginIfNecessary();
-        return getBooks(progressCallback, BookListRetriever.URL_LIBRARY);
+        String url = addAdultContentParam(BookListRetriever.URL_LIBRARY);
+        BookList books = cache.getBooks(url);
+        if (books == null) {
+            books = new BookList();
+            progress.setCurrentAction("Connecting to Smashwords");
+            String page = this.loader.getPage(url);
+            login.updateLoginStatus(page);
+            progress.setCurrentAction("Reading page");
+            List<Book> bookList = parseJsonBooklist(page);
+            books.addAll(bookList);
+        }
+        return books;
+    }
+
+    private List<Book> parseJsonBooklist(String page) {
+        String json = new StringTrimmer(page).getAfterNext("window.angularData[\"library\"] =").getBeforeNext("</script>").getBeforeLast(";").toString();
+        Gson gson = new GsonBuilder().create();
+        JsonResult jsonResult = gson.fromJson(json, JsonResult.class);
+        ArrayList<Book> result = new ArrayList<Book>();
+        result.addAll(jsonResult.getBooks().getAddedBooks());
+        result.addAll(jsonResult.getBooks().getPurchasedBooks());
+        result.addAll(jsonResult.getBooks().getGiftedBooks());
+        return result;
     }
 
     public BookList getBooks(ProgressCallback progressCallback, String url) throws IOException {
@@ -180,7 +209,7 @@ public class BookListRetriever {
         int prog = 30;
         progress.setProgress(prog);
         Document doc = Jsoup.parse(page);
-        Elements elements = doc.getElementsByClass("bookCoverImg");
+        Elements elements = doc.getElementsByClass("library-book");
         int divisor = elements.size() == 0 ? 1 : elements.size();
         int progStep = (100 - prog) / divisor;
         for (Element element : elements) {
@@ -201,12 +230,12 @@ public class BookListRetriever {
     }
 
     private String getUrlForNextSet(Document doc) {
-        Elements elements = doc.getElementsContainingOwnText("Next >");
+        Elements elements = doc.select("i.icon-hand-right");
         if (elements.isEmpty()) {
             return null;
         }
-        Element element = elements.first();
-        String url = element.attr("href");
+        Element elem = elements.first();
+        String url = elem.parent().attr("href");
         return url;
     }
 
@@ -214,10 +243,11 @@ public class BookListRetriever {
         Book book = new Book();
         book.setId(idParser.parse(element));
         book.setTitle(titleParser.parse(element));
-        book.setAuthor(authorParser.parse(element));
-        book.setCoverUrl(imgParser.parse(element));
-        book.setPriceInCent(priceParser.parse(element));
-        book.setDescriptionShort(shortDescriptionParser.parse(element));
+        book.setAuthors(new ArrayList<Author>());
+        book.getAuthors().add(authorParser.parse(element));
+        book.setCover_url(imgParser.parse(element));
+        book.addPrice(priceParser.parse(element));
+        book.setShort_description(shortDescriptionParser.parse(element));
         book.setRating(ratingParser.parse(element));
         return book;
     }
@@ -226,15 +256,15 @@ public class BookListRetriever {
 
         @Override
         protected String parseElement(Element element) {
-            String style = element.attr("style");
-            return new StringTrimmer(style).getAfterNext("background:url('").getBeforeNext("-tiny'").toString();
+            String url = element.select("img[class=book-list-image]").attr("src");
+            return new StringTrimmer(url).getBeforeNext("-thumb'").toString();
         }
     };
 
     private final static Parser<Long> idParser = new Parser<Long>() {
         @Override
         protected Long parseElement(Element element) {
-            Element a = element.getElementsByClass("bookTitle").first();
+            Element a = element.getElementsByClass("library-title").first();
             String idString = new StringTrimmer(a.attr("href")).getAfterLast("/").toString();
             return Long.parseLong(idString);
         }
@@ -243,35 +273,42 @@ public class BookListRetriever {
     private final static Parser<String> titleParser = new Parser<String>() {
         @Override
         protected String parseElement(Element element) {
-            Element a = element.getElementsByClass("bookTitle").first();
+            Element a = element.getElementsByClass("library-title").first();
             return a.text();
         }
     };
 
-    private final static Parser<String> authorParser = new Parser<String>() {
+    private final static Parser<Author> authorParser = new Parser<Author>() {
 
         @Override
-        protected String parseElement(Element element) {
+        protected Author parseElement(Element element) {
             Element a = element.getElementsByClass("subnote").first().getElementsByTag("a").first();
-            return a.text();
+            String authorName = a.text();
+            Author author = new Author();
+            author.setDisplay_name(authorName);
+            return author;
         }
     };
 
-    private final static Parser<Integer> priceParser = new Parser<Integer>() {
+    private final static Parser<JPrice> priceParser = new Parser<JPrice>() {
 
         @Override
-        protected Integer parseElement(Element element) {
+        protected JPrice parseElement(Element element) {
+            JPrice price = new JPrice();
+            price.setAmount(0);
+            price.setCurrency("USD");
             if (element == null)
-                return 0;
+                return price;
             Element subnote = element.getElementsByClass("subnote").first();
             String txt = subnote.text();
             if (txt.contains("Price: Free!")) {
-                return 0;
+                return price;
             } else if (txt.contains("You set the price")) {
-                return 0;
+                return price;
             } else {
                 txt = new StringTrimmer(txt).getAfterNext("Price: $").getBeforeNext("USD").toString();
-                return ParseUtils.parsePrice(txt);
+                price.setAmount(ParseUtils.parsePrice(txt));
+                return price;
             }
         }
     };
@@ -284,9 +321,10 @@ public class BookListRetriever {
                 return null;
             String text = element.getElementsByClass("text").first().html();
             StringTrimmer t = new StringTrimmer(text);
-            t.getAfterNext("<span class=\"subnote\">");
-            t.getAfterNext("</span>");
-            t.getAfterLast("<br />");
+            t.getAfterNext("<div class=\"subnote\">");
+            t.getAfterNext("</div>");
+            t.getAfterNext("<div class=\"well well-nb library-well\">");
+            t.getBeforeLast("</div>");
             String description = t.toString().trim();
             description = Jsoup.parseBodyFragment(description).text();
             return description;
@@ -299,14 +337,13 @@ public class BookListRetriever {
         protected Double parseElement(Element element) {
             if (element == null)
                 return null;
-            Element textDiv = element.getElementsByClass("text").first();
-            Element star = textDiv.select("img[src=" + Smashwords.BASE_URL + "/static/img/star.png]").last();
-            if (star == null) {
-                return getDefaultInCaseOfError(); // no rating
-            } else {
-                String text = star.nextElementSibling().text();
-                text = new StringTrimmer(text).getAfterNext("(").getBeforeNext("from").toString().trim();
+
+            Elements elements = element.select("span[style=color: #888;]");
+            if (elements.size() > 0) {
+                String text = new StringTrimmer(elements.first().text()).getAfterNext("(").getBeforeNext(" from").getBeforeNext(")").toString().trim();
                 return Double.parseDouble(text);
+            } else {
+                return getDefaultInCaseOfError(); // no rating
             }
         }
 

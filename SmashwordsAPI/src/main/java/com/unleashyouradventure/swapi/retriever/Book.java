@@ -7,8 +7,9 @@ import java.util.Map;
 import java.util.Set;
 
 import com.unleashyouradventure.swapi.Smashwords;
+import com.unleashyouradventure.swapi.retriever.json.JBook;
 
-public class Book {
+public class Book extends JBook {
 
     public static class Download {
         private final String title;
@@ -61,28 +62,20 @@ public class Book {
         public String getSmashwordsName() {
             return this.smashwordsName;
         }
+
+        public static FileType getByEnding(String ending) {
+            for (FileType type : FileType.values()) {
+                if (type.name().equalsIgnoreCase(ending))
+                    return type;
+            }
+            return null;
+        }
     }
 
-    private long id;
-    private String title;
-    private String author;
-    private String descriptionShort;
-    private String coverUrl;
     private byte[] coverImage;
-    private int priceInCent;
     private boolean isBookOwned;
     private boolean isBookDetailsAdded;
     private Map<FileType, List<Download>> downloads = new HashMap<FileType, List<Download>>();
-    private String descriptionLong;
-    private double rating = -1;
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
 
     public String getTitle() {
         return title;
@@ -90,22 +83,6 @@ public class Book {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public String getDescriptionShort() {
-        return descriptionShort;
-    }
-
-    public void setDescriptionShort(String descriptionShort) {
-        this.descriptionShort = descriptionShort;
     }
 
     public byte[] getCoverImage() {
@@ -116,12 +93,8 @@ public class Book {
         this.coverImage = coverImage;
     }
 
-    public String getCoverUrl(ImageSize size) {
-        return coverUrl + size.getEnding();
-    }
-
-    public void setCoverUrl(String coverUrl) {
-        this.coverUrl = coverUrl;
+    public String getCover_url(ImageSize size) {
+        return this.cover_url + size.getEnding();
     }
 
     public String toString() {
@@ -129,11 +102,9 @@ public class Book {
     }
 
     public int getPriceInCent() {
-        return priceInCent;
-    }
-
-    public void setPriceInCent(int priceInCent) {
-        this.priceInCent = priceInCent;
+        if (this.price.getPrices().isEmpty())
+            return 0;
+        return (int) (this.price.getPrices().get(0).getAmount() * 100);
     }
 
     public boolean isBookDetailsAdded() {
@@ -166,7 +137,7 @@ public class Book {
     }
 
     public boolean canBookBeDownloaded() {
-        return this.isBookOwned || this.priceInCent == 0;
+        return this.isBookOwned || this.getPriceInCent() == 0;
     }
 
     public Download getDownloadLinkForNewestVersion(FileType fileType) {
@@ -182,23 +153,5 @@ public class Book {
 
     public boolean isBookOwned() {
         return isBookOwned;
-    }
-
-    public String getDescriptionLong() {
-        return this.descriptionLong;
-    }
-
-    public void setDescriptionLong(String descriptionLong) {
-        this.descriptionLong = descriptionLong;
-    }
-
-    /** -1 indicates no rating yet */
-    public double getRating() {
-        return rating;
-    }
-
-    /** -1 indicates no rating yet */
-    public void setRating(double rating) {
-        this.rating = rating;
     }
 }
