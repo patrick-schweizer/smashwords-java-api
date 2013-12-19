@@ -13,6 +13,7 @@ import com.unleashyouradventure.swapi.OnOfflineTest;
 import com.unleashyouradventure.swapi.Smashwords;
 import com.unleashyouradventure.swapi.load.LoginHelper;
 import com.unleashyouradventure.swapi.load.PageLoader;
+import com.unleashyouradventure.swapi.retriever.Book.FileType;
 import com.unleashyouradventure.swapi.retriever.Book.ImageSize;
 
 public class BookRetrieverTest extends OnOfflineTest {
@@ -22,6 +23,8 @@ public class BookRetrieverTest extends OnOfflineTest {
     }
 
     private BookRetriever lib;
+    private Smashwords sw;
+    private LoginHelper login;
 
     @Before
     public void setUp() throws Exception {
@@ -34,8 +37,8 @@ public class BookRetrieverTest extends OnOfflineTest {
             assertTrue("System property " + SystemProperty.swUsername + " is missing!", password != null && !password.isEmpty());
         }
 
-        Smashwords sw = new Smashwords(username, password, this.pageLoader);
-        LoginHelper login = new LoginHelper(sw, username, password);
+        sw = new Smashwords(username, password, this.pageLoader);
+        login = new LoginHelper(sw, username, password);
         login.loginIfNecessary();
         assertTrue(login.isLoggedIn());
         lib = new BookRetriever(this.pageLoader, login);
@@ -59,11 +62,18 @@ public class BookRetrieverTest extends OnOfflineTest {
 
         // Direkt Download link
         Book book = lib.getBookWithDetails(PageLoader.PROGRESS_CALLBACK_DUMMY, 145431);
-        assertNotNull(book);
+        assertNotNull(book.getDownloadLinkForNewestVersion(FileType.Epub));
+
+        // Direkt Download link for bought books
+        book = lib.getBookWithDetails(PageLoader.PROGRESS_CALLBACK_DUMMY, 109660);
+        assertNotNull(book.getDownloadLinkForNewestVersion(FileType.Epub));
+
+        // Direkt Download link for books with price
+        book = lib.getBookWithDetails(PageLoader.PROGRESS_CALLBACK_DUMMY, 120327);
+        assertNotNull(book.getDownloadLinkForNewestVersion(FileType.Epub));
 
         // Link to revisions
         book = lib.getBookWithDetails(PageLoader.PROGRESS_CALLBACK_DUMMY, 52);
-        assertNotNull(book);
+        assertNotNull(book.getDownloadLinkForNewestVersion(FileType.Epub));
     }
-
 }

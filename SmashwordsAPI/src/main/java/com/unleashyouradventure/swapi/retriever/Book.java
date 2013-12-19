@@ -120,6 +120,10 @@ public class Book extends JBook {
         this.downloads.put(type, downloads);
     }
 
+    public void setBookDownloads(Map<FileType, List<Download>> downloads) {
+        this.downloads = downloads;
+    }
+
     public void setBookDetailsAdded(boolean isBookDetailsAdded) {
         this.isBookDetailsAdded = isBookDetailsAdded;
     }

@@ -257,7 +257,7 @@ public class BookListRetriever {
         @Override
         protected String parseElement(Element element) {
             String url = element.select("img[class=book-list-image]").attr("src");
-            return new StringTrimmer(url).getBeforeNext("-thumb'").toString();
+            return new StringTrimmer(url).getBeforeNext("-thumb").toString();
         }
     };
 

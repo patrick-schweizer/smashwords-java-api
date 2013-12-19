@@ -1,9 +1,13 @@
 package com.unleashyouradventure.swapi.retriever;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.jsoup.Jsoup;
@@ -17,6 +21,7 @@ import com.unleashyouradventure.swapi.cache.NoCache;
 import com.unleashyouradventure.swapi.load.LoginHelper;
 import com.unleashyouradventure.swapi.load.PageLoader;
 import com.unleashyouradventure.swapi.load.PageLoader.ProgressCallback;
+import com.unleashyouradventure.swapi.retriever.Book.Download;
 import com.unleashyouradventure.swapi.retriever.Book.FileType;
 import com.unleashyouradventure.swapi.retriever.json.Author;
 import com.unleashyouradventure.swapi.retriever.json.JPrice;
@@ -94,8 +99,9 @@ public class BookRetriever {
     private void loadBookDetails(String rawPage, Document doc, Book book) throws IOException {
         book.setBookOwned(rawPage.contains("Another Copy"));
         book.setLong_description(descriptionLongParser.parse(doc));
-        loadDownloadUrls(doc, book);
         book.setRating(ratingParser.parse(doc));
+        book.setBookDownloads(downloadsParser.parse(doc));
+        book.setBookDetailsAdded(true);
     }
 
     private final static Parser<List<Author>> authorParser = new Parser<List<Author>>() {
@@ -139,8 +145,10 @@ public class BookRetriever {
         @Override
         protected String parseElement(Element element) {
             Element span = element.select("div#longDescription").first();
-            String txt = new StringTrimmer(span.text()).toString();
-            return txt;
+            if (span != null) {
+                return new StringTrimmer(span.text()).toString();
+            } else
+                return getDefaultInCaseOfError();
         }
     };
 
@@ -194,20 +202,33 @@ public class BookRetriever {
         }
     };
 
-    private void loadDownloadUrls(Document doc, Book book) throws IOException {
-        String url;
-        FileType type;
-        Element downloadSection = doc.select("div#download").first();
-        Elements elements = downloadSection.select("a");
-        for (Element a : elements) {
-            url = Smashwords.BASE_URL + a.attr("href");
-            type = FileType.getByEnding(new StringTrimmer(url).getAfterLast(".").toString());
-            List<Book.Download> downloads = new ArrayList<Book.Download>();
-            downloads.add(new Book.Download("Newest", new URL(url)));
-            book.setBookDownloads(type, downloads);
+    private final static Parser<Map<FileType, List<Download>>> downloadsParser = new Parser<Map<FileType, List<Download>>>() {
+
+        @Override
+        protected Map<FileType, List<Download>> parseElement(Element element) {
+            String url;
+            FileType type;
+            Map<FileType, List<Download>> map = new HashMap<FileType, List<Download>>();
+            Element downloadSection = element.select("div#download").first();
+            if (downloadSection == null) {
+                // Book is not owned or free => try samples
+                downloadSection = element.select("div#samples").first();
+            }
+            Elements elements = downloadSection.select("a");
+            for (Element a : elements) {
+                url = Smashwords.BASE_URL + a.attr("href");
+                type = FileType.getByEnding(new StringTrimmer(url).getAfterLast(".").toString());
+                List<Book.Download> downloads = new ArrayList<Book.Download>();
+                try {
+                    downloads.add(new Book.Download("Newest", new URL(url)));
+                    map.put(type, downloads);
+                } catch (MalformedURLException e) {
+                    log.log(Level.WARNING, "Cannot parse URL ", e);
+                }
+            }
+            return map;
         }
-        book.setBookDetailsAdded(true);
-    }
+    };
 
     public Cache getCache() {
         return cache;
