@@ -9,7 +9,8 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 
-import com.unleashyouradventure.swapi.load.PageLoader;
+import com.unleashyouradventure.swapi.Smashwords;
+import com.unleashyouradventure.swapi.retriever.BookListRetriever.AdultContent;
 
 public class PageLoaderTest {
     private File downloadFile;
@@ -23,9 +24,39 @@ public class PageLoaderTest {
         assertTrue(downloadFile.length() > 0);
     }
 
+    @Test
+    public void testAdultContent() throws IOException {
+        PageLoader loader = new PageLoader();
+
+        // default
+        String page = loader.getPage(Smashwords.BASE_URL);
+        assertTrue(page.contains("Currently hiding adult content in book lists and search results."));
+
+        // on
+        loader.setAdultContent(AdultContent.on);
+        page = loader.getPage(Smashwords.BASE_URL);
+        assertTrue(page.contains("Currently showing adult content in book lists and search results."));
+
+        // off
+        loader.setAdultContent(AdultContent.off);
+        page = loader.getPage(Smashwords.BASE_URL);
+        assertTrue(page.contains("Currently hiding adult content in book lists and search results."));
+
+        // reset to default
+        loader.setAdultContent(AdultContent.on);
+        page = loader.getPage(Smashwords.BASE_URL); // Setting it on to be able to reset it in the next step
+        assertTrue(page.contains("Currently showing adult content in book lists and search results."));
+        loader.setAdultContent(AdultContent.swdefault);
+        page = loader.getPage(Smashwords.BASE_URL);
+        assertTrue(page.contains("Currently hiding adult content in book lists and search results."));
+
+    }
+
     @After
     public void tearDown() {
-        downloadFile.deleteOnExit();
-        downloadFile.delete();
+        if (downloadFile != null) {
+            downloadFile.deleteOnExit();
+            downloadFile.delete();
+        }
     }
 }
