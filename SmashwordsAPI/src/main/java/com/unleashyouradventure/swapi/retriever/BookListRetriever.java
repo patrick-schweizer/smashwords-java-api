@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.jsoup.Jsoup;
@@ -108,7 +109,6 @@ public class BookListRetriever {
     private PageLoader loader;
     private LoginHelper login;
     private Cache cache = new NoCache();
-    private AdultContent adultContent = AdultContent.swdefault;
 
     public BookListRetriever(PageLoader loader, LoginHelper login) {
         this.loader = loader;
@@ -154,16 +154,20 @@ public class BookListRetriever {
 
     public BookList getBooksFromLibary(ProgressCallback progress) throws IOException {
         login.loginIfNecessary();
-        String url = addAdultContentParam(BookListRetriever.URL_LIBRARY);
+        String url = BookListRetriever.URL_LIBRARY;
         BookList books = cache.getBooks(url);
         if (books == null) {
             books = new BookList();
-            progress.setCurrentAction("Connecting to Smashwords");
-            String page = this.loader.getPage(url);
-            login.updateLoginStatus(page);
-            progress.setCurrentAction("Reading page");
-            List<Book> bookList = parseJsonBooklist(page);
-            books.addAll(bookList);
+            try {
+                progress.setCurrentAction("Connecting to Smashwords");
+                String page = this.loader.getPage(url);
+                login.updateLoginStatus(page);
+                progress.setCurrentAction("Reading page");
+                List<Book> bookList = parseJsonBooklist(page);
+                books.addAll(bookList);
+            } catch (Exception e) {
+                log.log(Level.SEVERE, "Cannot load library from: " + url);
+            }
         }
         return books;
     }
@@ -180,7 +184,6 @@ public class BookListRetriever {
     }
 
     public BookList getBooks(ProgressCallback progressCallback, String url) throws IOException {
-        url = addAdultContentParam(url);
         BookList books = cache.getBooks(url);
         if (books == null) {
             books = new BookList();
@@ -188,16 +191,6 @@ public class BookListRetriever {
         }
 
         return books;
-    }
-
-    private String addAdultContentParam(String url) {
-        if (this.adultContent == AdultContent.on || this.adultContent == AdultContent.off) {
-            String delim = url.contains("?") ? "&" : "?";
-            StringBuilder b = new StringBuilder(url);
-            b.append(delim).append("adult=").append(this.adultContent.name());
-            url = b.toString();
-        }
-        return url;
     }
 
     private void loadBooksIntoList(ProgressCallback progress, String url, BookList books) throws IOException {
@@ -354,13 +347,5 @@ public class BookListRetriever {
 
     public void setCache(Cache cache) {
         this.cache = cache;
-    }
-
-    public AdultContent getAdultContent() {
-        return adultContent;
-    }
-
-    public void setAdultContent(AdultContent adultFilter) {
-        this.adultContent = adultFilter;
     }
 }
