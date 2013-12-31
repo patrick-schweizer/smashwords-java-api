@@ -47,4 +47,13 @@ public class JBook {
         }
         this.price.getPrices().add(price);
     }
+
+    public String toString() {
+        return "Book[" + this.title + "]";
+    }
+
+    /** Convienience method for: this.authors.get(0).getDisplay_name(), avoids Nullpointer */
+    public String getFirstAuthorDisplayName() {
+        return (this.authors == null || this.authors.isEmpty()) ? null : this.authors.get(0).getDisplay_name();
+    }
 }

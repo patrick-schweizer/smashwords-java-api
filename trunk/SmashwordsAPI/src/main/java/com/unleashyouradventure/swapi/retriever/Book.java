@@ -6,9 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import com.unleashyouradventure.swapi.Smashwords;
 import com.unleashyouradventure.swapi.retriever.json.JBook;
 
+@Getter
+@Setter
 public class Book extends JBook {
 
     public static class Download {
@@ -77,14 +82,6 @@ public class Book extends JBook {
     private boolean isBookDetailsAdded;
     private Map<FileType, List<Download>> downloads = new HashMap<FileType, List<Download>>();
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public byte[] getCoverImage() {
         return coverImage;
     }
@@ -95,10 +92,6 @@ public class Book extends JBook {
 
     public String getCover_url(ImageSize size) {
         return this.cover_url + size.getEnding();
-    }
-
-    public String toString() {
-        return "Book[" + this.title + "]";
     }
 
     public int getPriceInCent() {
