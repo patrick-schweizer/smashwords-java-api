@@ -22,15 +22,18 @@ import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreProtocolPNames;
 
 import com.unleashyouradventure.swapi.Smashwords;
 import com.unleashyouradventure.swapi.load.httpclient.AllowAllRedirectsHandler;
+import com.unleashyouradventure.swapi.retriever.BookListRetriever.AdultContent;
 import com.unleashyouradventure.swapi.util.IOUtil;
 import com.unleashyouradventure.swapi.util.StringTrimmer;
 
@@ -56,6 +59,27 @@ public class PageLoader {
         // client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,
         // proxy);
         client.setRedirectHandler(new AllowAllRedirectsHandler());
+    }
+
+    public void setAdultContent(AdultContent adultContent) {
+
+        if (adultContent == AdultContent.swdefault) {
+            // Remove cookie
+            List<Cookie> list = client.getCookieStore().getCookies();
+            client.getCookieStore().clear();
+            for (Cookie cookie : list) {
+                if (cookie.getName().contains("adultOff")) {
+                    continue;
+                }
+                client.getCookieStore().addCookie(cookie);
+            }
+        } else {
+            String value = (adultContent == AdultContent.on) ? "no" : "yes";
+            BasicClientCookie cookie = new BasicClientCookie("adultOff", value);
+            cookie.setDomain(".smashwords.com");
+            cookie.setPath("/");
+            client.getCookieStore().addCookie(cookie);
+        }
     }
 
     public String getPage(String url) throws IOException {
