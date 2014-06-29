@@ -19,7 +19,7 @@ public class PageLoaderTest {
     public void testGetFile() throws IOException {
         // TODO
         downloadFile = new PageLoader().saveURLToFile(new File(System.getProperty("java.io.tmpdir")),
-                "http://www.smashwords.com/books/download/131185/8/latest/0/1/happily-ever-after_10pct_sample.epub");
+                "http://www.smashwords.com/books/download/305/8/latest/0/0/smashwords-book-marketing-guide.epub");
         assertNotNull(downloadFile);
         assertTrue(downloadFile.length() > 0);
     }
