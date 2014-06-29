@@ -127,7 +127,7 @@ public class BookRetriever {
     private final static Parser<String> coverUrlParser = new Parser<String>() {
         @Override
         protected String parseElement(Element element) {
-            Element img = element.select("img[class=cover-thumbnail]").first();
+            Element img = element.select("img[class=cover-medium]").first();
             String url = new StringTrimmer(img.attr("src")).getBeforeLast("-thumb").toString();
             return url;
         }
@@ -228,6 +228,11 @@ public class BookRetriever {
             }
             return map;
         }
+
+        protected Map<FileType, List<Download>> getDefaultInCaseOfError() {
+            return new HashMap<FileType, List<Download>>();
+        }
+
     };
 
     public Cache getCache() {
