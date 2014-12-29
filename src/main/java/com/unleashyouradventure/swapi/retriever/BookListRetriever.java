@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.unleashyouradventure.swapi.model.SwAuthor;
+import com.unleashyouradventure.swapi.model.SwPrice;
+import com.unleashyouradventure.swapi.model.SwResult;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -20,9 +23,6 @@ import com.unleashyouradventure.swapi.cache.NoCache;
 import com.unleashyouradventure.swapi.load.LoginHelper;
 import com.unleashyouradventure.swapi.load.PageLoader;
 import com.unleashyouradventure.swapi.load.PageLoader.ProgressCallback;
-import com.unleashyouradventure.swapi.retriever.json.Author;
-import com.unleashyouradventure.swapi.retriever.json.JPrice;
-import com.unleashyouradventure.swapi.retriever.json.JsonResult;
 import com.unleashyouradventure.swapi.util.ParseUtils;
 import com.unleashyouradventure.swapi.util.ParseUtils.Parser;
 import com.unleashyouradventure.swapi.util.StringTrimmer;
@@ -116,7 +116,7 @@ public class BookListRetriever {
     }
 
     /**
-     * @param Instead
+     * Instead
      *            of an author you can also use a publisher
      */
     public BookList getBooksFromAuthor(ProgressCallback progressCallback, String author) throws IOException {
@@ -175,7 +175,7 @@ public class BookListRetriever {
     private List<Book> parseJsonBooklist(String page) {
         String json = new StringTrimmer(page).getAfterNext("window.angularData[\"library\"] =").getBeforeNext("</script>").getBeforeLast(";").toString();
         Gson gson = new GsonBuilder().create();
-        JsonResult jsonResult = gson.fromJson(json, JsonResult.class);
+        SwResult jsonResult = gson.fromJson(json, SwResult.class);
         ArrayList<Book> result = new ArrayList<Book>();
         result.addAll(jsonResult.getBooks().getAddedBooks());
         result.addAll(jsonResult.getBooks().getPurchasedBooks());
@@ -236,7 +236,7 @@ public class BookListRetriever {
         Book book = new Book();
         book.setId(idParser.parse(element));
         book.setTitle(titleParser.parse(element));
-        book.setAuthors(new ArrayList<Author>());
+        book.setAuthors(new ArrayList<SwAuthor>());
         book.getAuthors().add(authorParser.parse(element));
         book.setCover_url(imgParser.parse(element));
         book.addPrice(priceParser.parse(element));
@@ -271,23 +271,23 @@ public class BookListRetriever {
         }
     };
 
-    private final static Parser<Author> authorParser = new Parser<Author>() {
+    private final static Parser<SwAuthor> authorParser = new Parser<SwAuthor>() {
 
         @Override
-        protected Author parseElement(Element element) {
+        protected SwAuthor parseElement(Element element) {
             Element a = element.getElementsByClass("subnote").first().getElementsByTag("a").first();
             String authorName = a.text();
-            Author author = new Author();
+            SwAuthor author = new SwAuthor();
             author.setDisplay_name(authorName);
             return author;
         }
     };
 
-    private final static Parser<JPrice> priceParser = new Parser<JPrice>() {
+    private final static Parser<SwPrice> priceParser = new Parser<SwPrice>() {
 
         @Override
-        protected JPrice parseElement(Element element) {
-            JPrice price = new JPrice();
+        protected SwPrice parseElement(Element element) {
+            SwPrice price = new SwPrice();
             price.setAmount(0);
             price.setCurrency("USD");
             if (element == null)

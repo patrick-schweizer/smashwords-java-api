@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.unleashyouradventure.swapi.model.SwAuthor;
+import com.unleashyouradventure.swapi.model.SwPrice;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -23,8 +25,6 @@ import com.unleashyouradventure.swapi.load.PageLoader;
 import com.unleashyouradventure.swapi.load.PageLoader.ProgressCallback;
 import com.unleashyouradventure.swapi.retriever.Book.Download;
 import com.unleashyouradventure.swapi.retriever.Book.FileType;
-import com.unleashyouradventure.swapi.retriever.json.Author;
-import com.unleashyouradventure.swapi.retriever.json.JPrice;
 import com.unleashyouradventure.swapi.util.ParseUtils;
 import com.unleashyouradventure.swapi.util.ParseUtils.Parser;
 import com.unleashyouradventure.swapi.util.StringTrimmer;
@@ -88,7 +88,7 @@ public class BookRetriever {
 
     private void loadBookInformation(String rawPage, Document doc, Book book) {
         // Element elem = doc.select("div [itemtype=http://data-vocabulary.org/Product]").first();
-        book.setAuthors(new ArrayList<Author>());
+        book.setAuthors(new ArrayList<SwAuthor>());
         book.getAuthors().addAll(authorParser.parse(doc));
         book.setCover_url(coverUrlParser.parse(doc));
         book.setShort_description(descriptionShortParser.parse(doc));
@@ -104,15 +104,15 @@ public class BookRetriever {
         book.setBookDetailsAdded(true);
     }
 
-    private final static Parser<List<Author>> authorParser = new Parser<List<Author>>() {
+    private final static Parser<List<SwAuthor>> authorParser = new Parser<List<SwAuthor>>() {
         @Override
-        protected List<Author> parseElement(Element element) {
+        protected List<SwAuthor> parseElement(Element element) {
 
             Elements elements = element.select("a[href~=https://www.smashwords.com/profile/view/.*]");
-            List<Author> authors = new ArrayList<Author>();
+            List<SwAuthor> authors = new ArrayList<SwAuthor>();
             for (Element it : elements) {
                 if (!it.text().contains("Profile")) {
-                    Author author = new Author();
+                    SwAuthor author = new SwAuthor();
                     String name = it.text();
                     StringTrimmer userName = new StringTrimmer(it.attr("href")).getAfterLast("/");
                     author.setDisplay_name(name);
@@ -152,9 +152,9 @@ public class BookRetriever {
         }
     };
 
-    private final static Parser<JPrice> priceParser = new Parser<JPrice>() {
+    private final static Parser<SwPrice> priceParser = new Parser<SwPrice>() {
         @Override
-        protected JPrice parseElement(Element element) {
+        protected SwPrice parseElement(Element element) {
             Element elem = element.select("h3.panel-title").first();
             String txt = elem.text();
             double priceValue;
@@ -164,14 +164,14 @@ public class BookRetriever {
                 txt = new StringTrimmer(txt).getAfterNext("Price: $").getBeforeNext(" USD").toString();
                 priceValue = ParseUtils.parsePrice(txt);
             }
-            JPrice price = new JPrice();
+            SwPrice price = new SwPrice();
             price.setAmount(priceValue);
             price.setCurrency("USD");
             return price;
         }
 
-        protected JPrice getDefaultInCaseOfError() {
-            JPrice price = new JPrice();
+        protected SwPrice getDefaultInCaseOfError() {
+            SwPrice price = new SwPrice();
             price.setAmount(0);
             price.setCurrency("USD");
             return price;
