@@ -1,31 +1,40 @@
 package com.unleashyouradventure.swapi.retriever;
 
-import java.io.IOException;
-
+import com.unleashyouradventure.swapi.Smashwords;
+import com.unleashyouradventure.swapi.util.NullHelper;
+import com.unleashyouradventure.swapi.util.StringTrimmer;
+import lombok.extern.java.Log;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import com.unleashyouradventure.swapi.Smashwords;
-import com.unleashyouradventure.swapi.util.StringTrimmer;
+import java.io.IOException;
 
+@Log
 public class BookCategoryRetrieverGenerator {
 
     private StringBuilder b = new StringBuilder();
     private Document doc;
     private BookCategory root;
+    private Smashwords sw = new Smashwords(null, null);
 
     private BookCategoryRetrieverGenerator() throws IOException {
         start();
     }
 
     private void start() throws IOException {
-        Smashwords sw = new Smashwords(null, null);
+        sw = new Smashwords(null, null);
         String page = sw.getLoader().getPage(Smashwords.BASE_URL);
         doc = Jsoup.parse(page);
         root = new BookCategory(1, "All");
         parseMainCategory(new BookCategory(3, "Fiction"));
         parseMainCategory(new BookCategory(4, "Non-Fiction"));
+        parseMainCategory(new BookCategory(898, "Essay"));
+        parseMainCategory(new BookCategory(2044, "Plays"));
+        parseMainCategory(new BookCategory(2, "Screenplays"));
+        parseMainCategory(new BookCategory(56, "Poetry"));
+
         createCode(root);
         System.out.print(b.toString());
 
@@ -42,16 +51,22 @@ public class BookCategoryRetrieverGenerator {
     }
 
     private void parseMainCategory(BookCategory parentCategory) throws IOException {
+        log.info("Parsing " + parentCategory.getId());
         root.addChild(parentCategory);
-        String selector = "a[href=https://www.smashwords.com/books/category/" + parentCategory.getId() + "]";
-        Element ul = doc.select(selector).first().parent().nextElementSibling();
-        Element a;
-        for (Element li : ul.children()) {
-            a = li.child(0);
-            String id = new StringTrimmer(a.attr("href")).getAfterLast("/").toString();
+
+        String page = sw.getLoader().getPage(Smashwords.BASE_URL + "/books/category/" + parentCategory.getId());
+        doc = Jsoup.parse(page);
+        Element span = NullHelper.getFirstNoneNull(doc.getElementById("allSubCats"),
+                doc.getElementById("topSubCats"));
+
+        for (Element a : span.getElementsByTag("a")) {
+            String id = new StringTrimmer(a.attr("href")).getAfterLast("category/").getBeforeNext("/").toString();
             String name = a.text();
-            parentCategory.addChild(new BookCategory(Long.parseLong(id), name));
+            if (StringUtils.isNumeric(id)) {
+                parentCategory.addChild(new BookCategory(Long.parseLong(id), name));
+            }
         }
+        log.info("Added " + parentCategory.getChildren().size()+" categories.");
     }
 
     /**

@@ -1,14 +1,13 @@
 package com.unleashyouradventure.swapi.load;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import com.unleashyouradventure.swapi.LoggingHelper;
+import com.unleashyouradventure.swapi.Smashwords;
+import org.junit.Test;
 
 import java.io.IOException;
 
-import org.junit.Test;
-
-import com.unleashyouradventure.swapi.LoggingHelper;
-import com.unleashyouradventure.swapi.Smashwords;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class LoginHelperTest {
 
@@ -17,7 +16,7 @@ public class LoginHelperTest {
     };
 
     @Test
-    public void testLogin() throws IOException {
+    public void loginShouldWork() throws IOException {
         LoggingHelper.setLoggingAll();
         Smashwords sw = new Smashwords(getSystemProperty(SystemProperty.swUsername), getSystemProperty(SystemProperty.swPassword));
         LoginHelper login = sw.getLogin();
