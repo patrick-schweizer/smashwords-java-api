@@ -1,14 +1,14 @@
-package com.unleashyouradventure.swapi.retriever.json;
+package com.unleashyouradventure.swapi.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class JPrice {
+public class SwPrice {
     private double amount;
     private String currency;
 
-    public JPrice() {
+    public SwPrice() {
     }
 }

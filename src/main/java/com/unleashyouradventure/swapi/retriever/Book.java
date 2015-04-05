@@ -6,15 +6,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.unleashyouradventure.swapi.model.SwBook;
 import lombok.Getter;
 import lombok.Setter;
 
 import com.unleashyouradventure.swapi.Smashwords;
-import com.unleashyouradventure.swapi.retriever.json.JBook;
 
 @Getter
 @Setter
-public class Book extends JBook {
+public class Book extends SwBook {
 
     public static class Download {
         private final String title;

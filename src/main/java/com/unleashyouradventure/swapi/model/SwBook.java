@@ -1,4 +1,4 @@
-package com.unleashyouradventure.swapi.retriever.json;
+package com.unleashyouradventure.swapi.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,12 +7,12 @@ import java.util.Map;
 import lombok.Data;
 
 @Data
-public class JBook {
+public class SwBook {
     protected long id;
     protected String title;
-    protected JPrices price;
+    protected SwPrices price;
     protected int word_count;
-    protected JLanguage language;
+    protected SwLanguage language;
     protected long preorder_date;
     protected long publication_date;
     /** -1 indicates no rating yet */
@@ -24,10 +24,10 @@ public class JBook {
     protected String cover_url;
     protected String cover_thumbnail_url;
     protected boolean adult;
-    protected List<JCategory> categories;
+    protected List<SwCategory> categories;
     protected List<String> tags;
-    protected List<Author> authors;
-    protected Author publisher;
+    protected List<SwAuthor> authors;
+    protected SwAuthor publisher;
     protected Map<String, Boolean> edelivery;
     protected List<String> formats;
     protected Map<String, Boolean> rights;
@@ -35,15 +35,15 @@ public class JBook {
     protected boolean purchased;
     protected boolean in_library;
 
-    public void addAuthor(Author author) {
+    public void addAuthor(SwAuthor author) {
         if (this.authors == null)
-            this.authors = new ArrayList<Author>();
+            this.authors = new ArrayList<SwAuthor>();
         this.authors.add(author);
     }
 
-    public void addPrice(JPrice price) {
+    public void addPrice(SwPrice price) {
         if (this.price == null) {
-            this.price = new JPrices();
+            this.price = new SwPrices();
         }
         this.price.getPrices().add(price);
     }

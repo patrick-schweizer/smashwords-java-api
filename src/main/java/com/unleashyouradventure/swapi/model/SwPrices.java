@@ -1,4 +1,4 @@
-package com.unleashyouradventure.swapi.retriever.json;
+package com.unleashyouradventure.swapi.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,10 +8,10 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class JPrices {
+public class SwPrices {
     private final String type = "FIXED_PRICE";
-    private List<JPrice> prices = new ArrayList<JPrice>();
+    private List<SwPrice> prices = new ArrayList<SwPrice>();
 
-    public JPrices() {
+    public SwPrices() {
     }
 }

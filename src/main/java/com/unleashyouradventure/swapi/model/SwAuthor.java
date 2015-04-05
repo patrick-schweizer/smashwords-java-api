@@ -1,9 +1,9 @@
-package com.unleashyouradventure.swapi.retriever.json;
+package com.unleashyouradventure.swapi.model;
 
 import lombok.Data;
 
 @Data
-public class Author {
+public class SwAuthor {
     private long id;
     private String username;
     private String display_name;
