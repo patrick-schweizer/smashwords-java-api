@@ -1,5 +1,25 @@
 package com.unleashyouradventure.swapi.retriever;
 
+import com.unleashyouradventure.swapi.Smashwords;
+import com.unleashyouradventure.swapi.cache.Cache;
+import com.unleashyouradventure.swapi.cache.NoCache;
+import com.unleashyouradventure.swapi.load.LoginHelper;
+import com.unleashyouradventure.swapi.load.PageLoader;
+import com.unleashyouradventure.swapi.load.PageLoader.ProgressCallback;
+import com.unleashyouradventure.swapi.model.SwAuthor;
+import com.unleashyouradventure.swapi.model.SwBook;
+import com.unleashyouradventure.swapi.model.SwPrice;
+import com.unleashyouradventure.swapi.parser.BookDetailParser;
+import com.unleashyouradventure.swapi.retriever.Book.Download;
+import com.unleashyouradventure.swapi.retriever.Book.FileType;
+import com.unleashyouradventure.swapi.util.ParseUtils;
+import com.unleashyouradventure.swapi.util.ParseUtils.Parser;
+import com.unleashyouradventure.swapi.util.StringTrimmer;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -9,25 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.unleashyouradventure.swapi.model.SwAuthor;
-import com.unleashyouradventure.swapi.model.SwPrice;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import com.unleashyouradventure.swapi.Smashwords;
-import com.unleashyouradventure.swapi.cache.Cache;
-import com.unleashyouradventure.swapi.cache.NoCache;
-import com.unleashyouradventure.swapi.load.LoginHelper;
-import com.unleashyouradventure.swapi.load.PageLoader;
-import com.unleashyouradventure.swapi.load.PageLoader.ProgressCallback;
-import com.unleashyouradventure.swapi.retriever.Book.Download;
-import com.unleashyouradventure.swapi.retriever.Book.FileType;
-import com.unleashyouradventure.swapi.util.ParseUtils;
-import com.unleashyouradventure.swapi.util.ParseUtils.Parser;
-import com.unleashyouradventure.swapi.util.StringTrimmer;
 
 public class BookRetriever {
     private final static Logger log = Logger.getLogger(BookRetriever.class.getName());
@@ -88,11 +89,12 @@ public class BookRetriever {
 
     private void loadBookInformation(String rawPage, Document doc, Book book) {
         // Element elem = doc.select("div [itemtype=http://data-vocabulary.org/Product]").first();
-        book.setAuthors(new ArrayList<SwAuthor>());
-        book.getAuthors().addAll(authorParser.parse(doc));
+        BookDetailParser parser = new BookDetailParser();
+        SwBook swBook = parser.parseDetailPage(rawPage);
+        book.setContributors(swBook.getContributors());
         book.setCover_url(coverUrlParser.parse(doc));
         book.setShort_description(descriptionShortParser.parse(doc));
-        book.addPrice(priceParser.parse(doc));
+        book.addPrice(swBook.getPrice().getPrices().get(0));
         book.setTitle(titleParser.parse(doc));
     }
 

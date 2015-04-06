@@ -1,14 +1,5 @@
 package com.unleashyouradventure.swapi.retriever;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.unleashyouradventure.swapi.OnOfflineTest;
 import com.unleashyouradventure.swapi.Smashwords;
 import com.unleashyouradventure.swapi.load.LoginHelper;
@@ -16,6 +7,14 @@ import com.unleashyouradventure.swapi.load.PageLoader;
 import com.unleashyouradventure.swapi.retriever.BookListRetriever.Length;
 import com.unleashyouradventure.swapi.retriever.BookListRetriever.Price;
 import com.unleashyouradventure.swapi.retriever.BookListRetriever.Sortby;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class BookListRetrieverTest extends OnOfflineTest {
 
@@ -62,14 +61,18 @@ public class BookListRetrieverTest extends OnOfflineTest {
     @Test
     public void testGetBooksByParameters() throws IOException {
         for (Sortby sortby : Sortby.values()) {
+            if (sortby.ordinal() > 4) continue;
             for (Price price : Price.values()) {
+                if (price.ordinal() > 4) continue;
                 for (Length length : Length.values()) {
+                    if (length.ordinal() > 4) continue;
                     List<Book> books = lib.getBooksByCategory(PageLoader.PROGRESS_CALLBACK_DUMMY, rootCategory, sortby, price, length);
                     assertTrue(books.size() > 0 || isException(sortby, price, length));
                 }
             }
         }
     }
+
 
     private boolean isException(Sortby sortby, Price price, Length length) {
         return Sortby.unitssold == sortby && price == Price.free; // Smashwords doesn't give a result for this

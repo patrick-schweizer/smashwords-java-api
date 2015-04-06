@@ -1,9 +1,9 @@
 package com.unleashyouradventure.swapi.util;
 
+import org.jsoup.nodes.Element;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.jsoup.nodes.Element;
 
 public class ParseUtils {
     public static abstract class Parser<T> {
@@ -27,9 +27,9 @@ public class ParseUtils {
     }
 
     public static Double parsePrice(String txt) {
-        txt = txt.trim();
-        Double price = Double.valueOf(txt);
-        return price;
+        String trimmedInput = txt.trim();
+        trimmedInput = txt.replace(",", "");
+        return Double.valueOf(trimmedInput);
     }
 
     public static boolean equals(String a, String b) {

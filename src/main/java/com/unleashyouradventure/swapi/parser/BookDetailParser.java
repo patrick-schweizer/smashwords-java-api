@@ -5,9 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.unleashyouradventure.swapi.model.SwBook;
 import org.apache.commons.lang3.StringUtils;
 
-/**
- * Created by patrick on 29.12.14.
- */
+
 public class BookDetailParser {
 
     public SwBook parseDetailPage(String html){

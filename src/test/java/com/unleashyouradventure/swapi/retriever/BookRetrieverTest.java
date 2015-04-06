@@ -1,13 +1,5 @@
 package com.unleashyouradventure.swapi.retriever;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.unleashyouradventure.swapi.LoggingHelper;
 import com.unleashyouradventure.swapi.OnOfflineTest;
 import com.unleashyouradventure.swapi.Smashwords;
@@ -15,6 +7,13 @@ import com.unleashyouradventure.swapi.load.LoginHelper;
 import com.unleashyouradventure.swapi.load.PageLoader;
 import com.unleashyouradventure.swapi.retriever.Book.FileType;
 import com.unleashyouradventure.swapi.retriever.Book.ImageSize;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class BookRetrieverTest extends OnOfflineTest {
 
@@ -48,7 +47,7 @@ public class BookRetrieverTest extends OnOfflineTest {
     public void testGetBook() throws IOException {
         Book book = lib.getBookWithDetails(PageLoader.PROGRESS_CALLBACK_DUMMY, 208326);
         assertNotNull(book);
-        assertNotNull(book.getAuthors().get(0));
+        assertNotNull(book.getContributors().get(0));
         assertNotNull(book.getCover_url(ImageSize.thumb));
         assertNotNull(book.getShort_description());
         assertNotNull(book.getPriceInCent());

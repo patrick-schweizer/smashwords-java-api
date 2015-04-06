@@ -1,10 +1,10 @@
 package com.unleashyouradventure.swapi.model;
 
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import lombok.Data;
 
 @Data
 public class SwBook {
@@ -26,7 +26,7 @@ public class SwBook {
     protected boolean adult;
     protected List<SwCategory> categories;
     protected List<String> tags;
-    protected List<SwAuthor> authors;
+    protected List<SwPerson> contributors;
     protected SwAuthor publisher;
     protected Map<String, Boolean> edelivery;
     protected List<String> formats;
@@ -35,10 +35,10 @@ public class SwBook {
     protected boolean purchased;
     protected boolean in_library;
 
-    public void addAuthor(SwAuthor author) {
-        if (this.authors == null)
-            this.authors = new ArrayList<SwAuthor>();
-        this.authors.add(author);
+    public void addContributor(SwPerson person) {
+        if (this.contributors == null)
+            this.contributors = new ArrayList<SwPerson>();
+        this.contributors.add(person);
     }
 
     public void addPrice(SwPrice price) {
@@ -52,8 +52,9 @@ public class SwBook {
         return "Book[" + this.title + "]";
     }
 
-    /** Convienience method for: this.authors.get(0).getDisplay_name(), avoids Nullpointer */
+    /** Convienience method for: this.contributors.get(0).getAccount().getDisplay_name(), avoids Nullpointer */
     public String getFirstAuthorDisplayName() {
-        return (this.authors == null || this.authors.isEmpty()) ? null : this.authors.get(0).getDisplay_name();
+        return (this.contributors == null || this.contributors.isEmpty()) ?
+                null : this.contributors.get(0).getAccount().getDisplay_name();
     }
 }

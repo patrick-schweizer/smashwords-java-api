@@ -1,20 +1,5 @@
 package com.unleashyouradventure.swapi.retriever;
 
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import com.unleashyouradventure.swapi.model.SwAuthor;
-import com.unleashyouradventure.swapi.model.SwPrice;
-import com.unleashyouradventure.swapi.model.SwResult;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.unleashyouradventure.swapi.Smashwords;
@@ -23,9 +8,24 @@ import com.unleashyouradventure.swapi.cache.NoCache;
 import com.unleashyouradventure.swapi.load.LoginHelper;
 import com.unleashyouradventure.swapi.load.PageLoader;
 import com.unleashyouradventure.swapi.load.PageLoader.ProgressCallback;
+import com.unleashyouradventure.swapi.model.SwAccount;
+import com.unleashyouradventure.swapi.model.SwPerson;
+import com.unleashyouradventure.swapi.model.SwPrice;
+import com.unleashyouradventure.swapi.model.SwResult;
 import com.unleashyouradventure.swapi.util.ParseUtils;
 import com.unleashyouradventure.swapi.util.ParseUtils.Parser;
 import com.unleashyouradventure.swapi.util.StringTrimmer;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class BookListRetriever {
 
@@ -236,8 +236,8 @@ public class BookListRetriever {
         Book book = new Book();
         book.setId(idParser.parse(element));
         book.setTitle(titleParser.parse(element));
-        book.setAuthors(new ArrayList<SwAuthor>());
-        book.getAuthors().add(authorParser.parse(element));
+        book.setContributors(new ArrayList<SwPerson> ());
+        book.getContributors().add(authorParser.parse(element));
         book.setCover_url(imgParser.parse(element));
         book.addPrice(priceParser.parse(element));
         book.setShort_description(shortDescriptionParser.parse(element));
@@ -271,15 +271,17 @@ public class BookListRetriever {
         }
     };
 
-    private final static Parser<SwAuthor> authorParser = new Parser<SwAuthor>() {
+    private final static Parser<SwPerson> authorParser = new Parser<SwPerson>() {
 
         @Override
-        protected SwAuthor parseElement(Element element) {
+        protected SwPerson parseElement(Element element) {
             Element a = element.getElementsByClass("subnote").first().getElementsByTag("a").first();
             String authorName = a.text();
-            SwAuthor author = new SwAuthor();
-            author.setDisplay_name(authorName);
-            return author;
+            SwPerson person = new SwPerson();
+            SwAccount account = new SwAccount();
+            account.setDisplay_name(authorName);
+            person.setAccount(account);
+            return person;
         }
     };
 
