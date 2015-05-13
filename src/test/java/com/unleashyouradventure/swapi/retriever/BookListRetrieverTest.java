@@ -7,6 +7,7 @@ import com.unleashyouradventure.swapi.load.PageLoader;
 import com.unleashyouradventure.swapi.retriever.BookListRetriever.Length;
 import com.unleashyouradventure.swapi.retriever.BookListRetriever.Price;
 import com.unleashyouradventure.swapi.retriever.BookListRetriever.Sortby;
+import lombok.extern.java.Log;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,6 +17,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+@Log
 public class BookListRetrieverTest extends OnOfflineTest {
 
     private enum SystemProperty {
@@ -60,14 +62,16 @@ public class BookListRetrieverTest extends OnOfflineTest {
 
     @Test
     public void testGetBooksByParameters() throws IOException {
+        int searchDepth = 200;
         for (Sortby sortby : Sortby.values()) {
-            if (sortby.ordinal() > 4) continue;
+            if (sortby.ordinal() > searchDepth) continue;
             for (Price price : Price.values()) {
-                if (price.ordinal() > 4) continue;
+                if (price.ordinal() > searchDepth) continue;
                 for (Length length : Length.values()) {
-                    if (length.ordinal() > 4) continue;
+                    if (length.ordinal() > searchDepth) continue;
                     List<Book> books = lib.getBooksByCategory(PageLoader.PROGRESS_CALLBACK_DUMMY, rootCategory, sortby, price, length);
                     assertTrue(books.size() > 0 || isException(sortby, price, length));
+                    log.info("Parsed "+sortby+" "+price+" length");
                 }
             }
         }

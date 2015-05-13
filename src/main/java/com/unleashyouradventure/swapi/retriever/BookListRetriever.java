@@ -117,7 +117,7 @@ public class BookListRetriever {
 
     /**
      * Instead
-     *            of an author you can also use a publisher
+     * of an author you can also use a publisher
      */
     public BookList getBooksFromAuthor(ProgressCallback progressCallback, String author) throws IOException {
         return getBooks(progressCallback, Smashwords.BASE_URL + "/profile/view/" + author);
@@ -207,13 +207,22 @@ public class BookListRetriever {
         int progStep = (100 - prog) / divisor;
         for (Element element : elements) {
             Book book = parseBook(element);
-            books.add(book);
-            progress.setCurrentAction("Adding book: " + book.getTitle());
+            try {
+                books.add(book);
+            } catch (NullPointerException e) {
+                handleException(e, element);
+                progress.setCurrentAction("Adding book: " + book.getTitle());
+            }
             progress.setProgress(prog += progStep);
+
         }
         String urlForNextSet = getUrlForNextSet(doc);
         books.setUrlForNextSet(urlForNextSet);
         cache.putBooks(url, books);
+    }
+
+    private void handleException(NullPointerException e, Element element) {
+        throw new IllegalArgumentException("Nullpointer while parsing :"+ element, e);
     }
 
     public void getMoreBooks(ProgressCallback progressCallback, BookList books) throws IOException {
@@ -236,7 +245,7 @@ public class BookListRetriever {
         Book book = new Book();
         book.setId(idParser.parse(element));
         book.setTitle(titleParser.parse(element));
-        book.setContributors(new ArrayList<SwPerson> ());
+        book.setContributors(new ArrayList<SwPerson>());
         book.getContributors().add(authorParser.parse(element));
         book.setCover_url(imgParser.parse(element));
         book.addPrice(priceParser.parse(element));
@@ -254,7 +263,7 @@ public class BookListRetriever {
         }
     };
 
-    private final static Parser<Long> idParser = new Parser<Long>() {
+    private static final Parser<Long> idParser = new Parser<Long>() {
         @Override
         protected Long parseElement(Element element) {
             Element a = element.getElementsByClass("library-title").first();

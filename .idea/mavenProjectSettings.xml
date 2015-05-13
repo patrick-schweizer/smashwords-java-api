@@ -3,7 +3,9 @@
   <component name="MavenProjectSettings">
     <option name="testRunningSettings">
       <MavenTestRunningSettings>
+        <option name="passArgLine" value="true" />
         <option name="passEnvironmentVariables" value="true" />
+        <option name="passSystemProperties" value="true" />
       </MavenTestRunningSettings>
     </option>
   </component>
