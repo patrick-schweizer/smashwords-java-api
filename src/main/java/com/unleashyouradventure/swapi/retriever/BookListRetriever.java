@@ -266,7 +266,7 @@ public class BookListRetriever {
     private static final Parser<Long> idParser = new Parser<Long>() {
         @Override
         protected Long parseElement(Element element) {
-            Element a = element.getElementsByClass("library-title").first();
+            Element a = element.getElementsByClass("library-title").first().getElementsByTag("a").first();
             String idString = new StringTrimmer(a.attr("href")).getAfterLast("/").toString();
             return Long.parseLong(idString);
         }
