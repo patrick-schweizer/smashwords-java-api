@@ -1,5 +1,6 @@
 package com.unleashyouradventure.swapi.retriever;
 
+import com.unleashyouradventure.swapi.BookListValidator;
 import com.unleashyouradventure.swapi.OnOfflineTest;
 import com.unleashyouradventure.swapi.Smashwords;
 import com.unleashyouradventure.swapi.load.LoginHelper;
@@ -11,6 +12,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @Log
@@ -40,13 +42,15 @@ public class BookListRetrieverFromSearchTest extends OnOfflineTest {
     @Test
     public void shouldFindNoBooksFromEmptySearchPhrase() throws IOException {
         List<Book> books = lib.getBooksBySearch(PageLoader.PROGRESS_CALLBACK_DUMMY, "");
-        assertTrue("There should be more no books.", books.isEmpty());
+        assertTrue("There should be no books.", books.isEmpty());
     }
 
     @Test
     public void shouldFindBooksFromSearchPhrase() throws IOException {
         List<Book> books = lib.getBooksBySearch(PageLoader.PROGRESS_CALLBACK_DUMMY, "dog");
-        assertTrue("There should be 10 books.", !books.isEmpty());
-        Book book = books.get(0);
+        assertEquals("There should be 10 books.", 10, books.size());
+        new BookListValidator(books).validateBookFromListPage();
     }
+
+
 }

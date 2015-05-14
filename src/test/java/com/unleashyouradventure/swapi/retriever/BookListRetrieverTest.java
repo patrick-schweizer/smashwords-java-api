@@ -1,5 +1,6 @@
 package com.unleashyouradventure.swapi.retriever;
 
+import com.unleashyouradventure.swapi.BookListValidator;
 import com.unleashyouradventure.swapi.OnOfflineTest;
 import com.unleashyouradventure.swapi.Smashwords;
 import com.unleashyouradventure.swapi.load.LoginHelper;
@@ -57,20 +58,21 @@ public class BookListRetrieverTest extends OnOfflineTest {
     public void testGetBooksFromAuthor() throws IOException {
         List<Book> books = lib.getBooksFromAuthor(PageLoader.PROGRESS_CALLBACK_DUMMY, "UnleashYourAdventure");
         assertTrue(books.size() > 0);
-        assertTrue(books.get(0).getShort_description().length() > 0);
+        new BookListValidator(books).validateBookFromListPage();
     }
 
     @Test
     public void testGetBooksByParameters() throws IOException {
-        int searchDepth = 200;
+        int searchDepth = 4;
         for (Sortby sortby : Sortby.values()) {
-            if (sortby.ordinal() > searchDepth) continue;
+            if (sortby.ordinal() > searchDepth){ continue; }
             for (Price price : Price.values()) {
-                if (price.ordinal() > searchDepth) continue;
+                if (price.ordinal() > searchDepth) { continue; }
                 for (Length length : Length.values()) {
-                    if (length.ordinal() > searchDepth) continue;
+                    if (length.ordinal() > searchDepth) {continue;}
                     List<Book> books = lib.getBooksByCategory(PageLoader.PROGRESS_CALLBACK_DUMMY, rootCategory, sortby, price, length);
                     assertTrue(books.size() > 0 || isException(sortby, price, length));
+                    new BookListValidator(books).validateBookFromListPage();
                     log.info("Parsed "+sortby+" "+price+" length");
                 }
             }

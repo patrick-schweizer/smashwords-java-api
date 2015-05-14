@@ -12,6 +12,8 @@ import com.unleashyouradventure.swapi.model.SwAccount;
 import com.unleashyouradventure.swapi.model.SwPerson;
 import com.unleashyouradventure.swapi.model.SwPrice;
 import com.unleashyouradventure.swapi.model.SwResult;
+import com.unleashyouradventure.swapi.retriever.parser.list.PriceParser;
+import com.unleashyouradventure.swapi.retriever.parser.list.RatingParser;
 import com.unleashyouradventure.swapi.util.ParseUtils;
 import com.unleashyouradventure.swapi.util.ParseUtils.Parser;
 import com.unleashyouradventure.swapi.util.StringTrimmer;
@@ -294,67 +296,21 @@ public class BookListRetriever {
         }
     };
 
-    private final static Parser<SwPrice> priceParser = new Parser<SwPrice>() {
+    private static final Parser<SwPrice> priceParser = new PriceParser();
 
-        @Override
-        protected SwPrice parseElement(Element element) {
-            SwPrice price = new SwPrice();
-            price.setAmount(0);
-            price.setCurrency("USD");
-            if (element == null)
-                return price;
-            Element subnote = element.getElementsByClass("subnote").first();
-            String txt = subnote.text();
-            if (txt.contains("Price: Free!")) {
-                return price;
-            } else if (txt.contains("You set the price")) {
-                return price;
-            } else {
-                txt = new StringTrimmer(txt).getAfterNext("Price: $").getBeforeNext("USD").toString();
-                price.setAmount(ParseUtils.parsePrice(txt));
-                return price;
-            }
-        }
-    };
-
-    private final static Parser<String> shortDescriptionParser = new Parser<String>() {
+    private static final Parser<String> shortDescriptionParser = new Parser<String>() {
 
         @Override
         protected String parseElement(Element element) {
-            if (element == null)
+            if (element == null) {
                 return null;
-            String text = element.getElementsByClass("text").first().html();
-            StringTrimmer t = new StringTrimmer(text);
-            t.getAfterNext("<div class=\"subnote\">");
-            t.getAfterNext("</div>");
-            t.getAfterNext("<div class=\"well well-nb library-well\">");
-            t.getBeforeLast("</div>");
-            String description = t.toString().trim();
-            description = Jsoup.parseBodyFragment(description).text();
-            return description;
-        }
-    };
-
-    private final static Parser<Double> ratingParser = new Parser<Double>() {
-
-        @Override
-        protected Double parseElement(Element element) {
-            if (element == null)
-                return null;
-
-            Elements elements = element.select("span[style=color: #888;]");
-            if (elements.size() > 0) {
-                String text = new StringTrimmer(elements.first().text()).getAfterNext("(").getBeforeNext(" from").getBeforeNext(")").toString().trim();
-                return Double.parseDouble(text);
-            } else {
-                return getDefaultInCaseOfError(); // no rating
             }
-        }
-
-        protected Double getDefaultInCaseOfError() {
-            return Double.valueOf(-1);
+            String text = element.getElementsByClass("library-well").first().ownText();
+            return text;
         }
     };
+
+    private static final Parser<Double> ratingParser = new RatingParser();
 
     public void setCache(Cache cache) {
         this.cache = cache;
