@@ -53,8 +53,23 @@ public class SwBook {
     }
 
     /** Convienience method for: this.contributors.get(0).getAccount().getDisplay_name(), avoids Nullpointer */
-    public String getFirstAuthorDisplayName() {
-        return (this.contributors == null || this.contributors.isEmpty()) ?
-                null : this.contributors.get(0).getAccount().getDisplay_name();
+    public String getFirstAuthorDisplayNameOrNull() {
+        if(this.contributors == null || this.contributors.isEmpty()) {
+            return null;
+        }
+        if(this.contributors.get(0).getAccount() == null) {
+            return null;
+        }
+        return this.contributors.get(0).getAccount().getDisplay_name();
+    }
+
+    public int getPriceInCent() {
+        if (this.price.getPrices().isEmpty())
+            return 0;
+        return (int) (this.price.getPrices().get(0).getAmount() * 100);
+    }
+
+    public String getCover_url(ImageSize size) {
+        return this.cover_url + size.getEnding();
     }
 }

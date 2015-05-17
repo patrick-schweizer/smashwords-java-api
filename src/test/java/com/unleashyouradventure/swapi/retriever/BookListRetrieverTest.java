@@ -5,6 +5,7 @@ import com.unleashyouradventure.swapi.OnOfflineTest;
 import com.unleashyouradventure.swapi.Smashwords;
 import com.unleashyouradventure.swapi.load.LoginHelper;
 import com.unleashyouradventure.swapi.load.PageLoader;
+import com.unleashyouradventure.swapi.model.ImageSize;
 import com.unleashyouradventure.swapi.retriever.BookListRetriever.Length;
 import com.unleashyouradventure.swapi.retriever.BookListRetriever.Price;
 import com.unleashyouradventure.swapi.retriever.BookListRetriever.Sortby;
@@ -26,7 +27,7 @@ public class BookListRetrieverTest extends OnOfflineTest {
     }
 
     private BookListRetriever lib;
-    private BookCategory rootCategory = new BookCategory(1, "All");
+    private final BookCategory rootCategory = new BookCategory(1, "All");
 
     @Before
     public void setUp() throws Exception {
@@ -45,19 +46,22 @@ public class BookListRetrieverTest extends OnOfflineTest {
     @Test
     public void testGetBooksFromLibary() throws IOException {
         List<Book> books = lib.getBooksFromLibary(PageLoader.PROGRESS_CALLBACK_DUMMY);
-        assertTrue(books.size() > 0);
+        assertTrue("Expected library list to contain books.", !books.isEmpty());
+
+        new BookListValidator(books).validateBookFromListPage();
+
         Book book = books.get(0);
         assertEquals(299, book.getPriceInCent());
 
         book = books.get(1);
         assertEquals(0, book.getPriceInCent());
-        book.getCover_url(Book.ImageSize.thumb);
+        book.getCover_url(ImageSize.thumb);
     }
 
     @Test
     public void testGetBooksFromAuthor() throws IOException {
         List<Book> books = lib.getBooksFromAuthor(PageLoader.PROGRESS_CALLBACK_DUMMY, "UnleashYourAdventure");
-        assertTrue(books.size() > 0);
+        assertTrue("Expected more then 0 books from UnleashYourAdventure", !books.isEmpty());
         new BookListValidator(books).validateBookFromListPage();
     }
 

@@ -1,16 +1,15 @@
 package com.unleashyouradventure.swapi.retriever;
 
+import com.unleashyouradventure.swapi.Smashwords;
+import com.unleashyouradventure.swapi.model.SwBook;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.unleashyouradventure.swapi.model.SwBook;
-import lombok.Getter;
-import lombok.Setter;
-
-import com.unleashyouradventure.swapi.Smashwords;
 
 @Getter
 @Setter
@@ -33,23 +32,6 @@ public class Book extends SwBook {
             return url;
         }
 
-    }
-
-    public enum ImageSize {
-        tiny, thumb, full("");
-        final String ending;
-
-        ImageSize() {
-            this.ending = "-" + name();
-        }
-
-        ImageSize(String ending) {
-            this.ending = ending;
-        }
-
-        public String getEnding() {
-            return this.ending;
-        }
     }
 
     public enum FileType {
@@ -88,16 +70,6 @@ public class Book extends SwBook {
 
     public void setCoverImage(byte[] coverImage) {
         this.coverImage = coverImage;
-    }
-
-    public String getCover_url(ImageSize size) {
-        return this.cover_url + size.getEnding();
-    }
-
-    public int getPriceInCent() {
-        if (this.price.getPrices().isEmpty())
-            return 0;
-        return (int) (this.price.getPrices().get(0).getAmount() * 100);
     }
 
     public boolean isBookDetailsAdded() {

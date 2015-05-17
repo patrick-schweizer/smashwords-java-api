@@ -1,12 +1,12 @@
 package com.unleashyouradventure.swapi.retriever;
 
+import com.unleashyouradventure.swapi.BookValidator;
 import com.unleashyouradventure.swapi.LoggingHelper;
 import com.unleashyouradventure.swapi.OnOfflineTest;
 import com.unleashyouradventure.swapi.Smashwords;
 import com.unleashyouradventure.swapi.load.LoginHelper;
 import com.unleashyouradventure.swapi.load.PageLoader;
 import com.unleashyouradventure.swapi.retriever.Book.FileType;
-import com.unleashyouradventure.swapi.retriever.Book.ImageSize;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -46,13 +46,8 @@ public class BookRetrieverTest extends OnOfflineTest {
     @Test
     public void testGetBook() throws IOException {
         Book book = lib.getBookWithDetails(PageLoader.PROGRESS_CALLBACK_DUMMY, 208326);
-        assertNotNull(book);
-        assertNotNull(book.getContributors().get(0));
-        assertNotNull(book.getCover_url(ImageSize.thumb));
-        assertNotNull(book.getShort_description());
-        assertNotNull(book.getPriceInCent());
-        assertNotNull(book.getTitle());
-        assertTrue(book.isBookOwned());
+        new BookValidator(book).validateBookFromDetailPage();
+        assertTrue("Expected book to be owned", book.isBookOwned());
         // assertTrue(book.getRating() > 0);
     }
 
