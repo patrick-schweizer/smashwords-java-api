@@ -19,6 +19,8 @@ public class BookValidator {
         assertNotNull(book.getPriceInCent());
         assertNotNull(book.getTitle());
         assertNotNull(book.getCover_url(ImageSize.thumb));
+        assertNotNull(book.getSeries());
+        assertTrue("Series shpould not be empty", !book.getSeries().isEmpty());
     }
 
     public void validateBookFromDetailPage() {

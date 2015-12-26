@@ -34,6 +34,7 @@ public class SwBook {
     protected boolean in_cart;
     protected boolean purchased;
     protected boolean in_library;
+    protected List<SwSeries> series;
 
     public void addContributor(SwPerson person) {
         if (this.contributors == null)
