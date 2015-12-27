@@ -19,12 +19,13 @@ public class BookValidator {
         assertNotNull(book.getPriceInCent());
         assertNotNull(book.getTitle());
         assertNotNull(book.getCover_url(ImageSize.thumb));
-        assertNotNull(book.getSeries());
-        assertTrue("Series shpould not be empty", !book.getSeries().isEmpty());
+
+
     }
 
     public void validateBookFromDetailPage() {
         validateBookFromListPage(); // we expect everything that that was parsed from list page as well
-
+        assertNotNull("Series should not be null", book.getSeries());
+        assertTrue("Series should not be empty", !book.getSeries().isEmpty());
     }
 }

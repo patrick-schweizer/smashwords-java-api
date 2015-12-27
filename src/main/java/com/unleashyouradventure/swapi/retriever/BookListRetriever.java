@@ -8,13 +8,9 @@ import com.unleashyouradventure.swapi.cache.NoCache;
 import com.unleashyouradventure.swapi.load.LoginHelper;
 import com.unleashyouradventure.swapi.load.PageLoader;
 import com.unleashyouradventure.swapi.load.PageLoader.ProgressCallback;
-import com.unleashyouradventure.swapi.model.SwAccount;
-import com.unleashyouradventure.swapi.model.SwPerson;
-import com.unleashyouradventure.swapi.model.SwPrice;
-import com.unleashyouradventure.swapi.model.SwResult;
+import com.unleashyouradventure.swapi.model.*;
 import com.unleashyouradventure.swapi.retriever.parser.list.PriceParser;
 import com.unleashyouradventure.swapi.retriever.parser.list.RatingParser;
-import com.unleashyouradventure.swapi.util.ParseUtils;
 import com.unleashyouradventure.swapi.util.ParseUtils.Parser;
 import com.unleashyouradventure.swapi.util.StringTrimmer;
 import org.jsoup.Jsoup;
@@ -135,6 +131,12 @@ public class BookListRetriever {
 
     public BookList getBooksByCategory(ProgressCallback progressCallback, BookCategory category) throws IOException {
         return getBooksByCategory(progressCallback, category, Sortby.any, Price.anyPrice, Length.any);
+    }
+
+    public BookList getBooksBySeries(ProgressCallback progressCallback, SwSeries series) throws IOException {
+        StringBuilder url = new StringBuilder();
+        url.append(Smashwords.BASE_URL).append("/books/byseries/").append(series.getId());
+        return getBooks(progressCallback, url.toString());
     }
 
     public BookList getBooksBySearch(ProgressCallback progressCallback, String searchterm) throws IOException {
