@@ -99,11 +99,14 @@ public class BookRetriever {
     }
 
     private void loadBookDetails(String rawPage, Document doc, Book book) throws IOException {
+        BookDetailParser parser = new BookDetailParser();
+        SwBook swBook = parser.parseDetailPage(rawPage);
         book.setBookOwned(rawPage.contains("Another Copy"));
         book.setLong_description(descriptionLongParser.parse(doc));
         book.setRating(ratingParser.parse(doc));
         book.setBookDownloads(downloadsParser.parse(doc));
         book.setBookDetailsAdded(true);
+        book.setSeries(swBook.getSeries());
     }
 
     private final static Parser<List<SwAuthor>> authorParser = new Parser<List<SwAuthor>>() {
