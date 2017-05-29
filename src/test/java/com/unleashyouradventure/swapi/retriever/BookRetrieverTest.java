@@ -52,22 +52,28 @@ public class BookRetrieverTest extends OnOfflineTest {
     }
 
     @Test
-    public void testGetBookLinks() throws IOException {
+    public void shouldHaveDirektDownloadLink() throws IOException{
+        testGetBookLink(145431);
+    }
 
-        // Direkt Download link
-        Book book = lib.getBookWithDetails(PageLoader.PROGRESS_CALLBACK_DUMMY, 145431);
+    @Test
+    public void shouldHaveDirektDownloadLinkForBoughtBook() throws IOException{
+        testGetBookLink(326886);
+    }
+
+    @Test
+    public void shouldHaveDirektDownloadLinkForBookWithPrice() throws IOException{
+        testGetBookLink(120327);
+    }
+
+    @Test
+    public void shouldHaveDirektDownloadLinkWithRevisions() throws IOException{
+        testGetBookLink(52);
+    }
+
+    private void testGetBookLink(long bookId) throws IOException {
+        Book book = lib.getBookWithDetails(PageLoader.PROGRESS_CALLBACK_DUMMY,bookId);
         assertNotNull(book.getDownloadLinkForNewestVersion(FileType.Epub));
 
-        // Direkt Download link for bought books
-        book = lib.getBookWithDetails(PageLoader.PROGRESS_CALLBACK_DUMMY, 109660);
-        assertNotNull(book.getDownloadLinkForNewestVersion(FileType.Epub));
-
-        // Direkt Download link for books with price
-        book = lib.getBookWithDetails(PageLoader.PROGRESS_CALLBACK_DUMMY, 120327);
-        assertNotNull(book.getDownloadLinkForNewestVersion(FileType.Epub));
-
-        // Link to revisions
-        book = lib.getBookWithDetails(PageLoader.PROGRESS_CALLBACK_DUMMY, 52);
-        assertNotNull(book.getDownloadLinkForNewestVersion(FileType.Epub));
     }
 }

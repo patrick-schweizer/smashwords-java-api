@@ -102,10 +102,10 @@ public class BookListRetriever {
         swdefault, on, off;
     }
 
-    private final static Logger log = Logger.getLogger(BookListRetriever.class.getName());
-    public final static String URL_LIBRARY = Smashwords.BASE_URL + "/library";
-    private PageLoader loader;
-    private LoginHelper login;
+    private static final Logger log = Logger.getLogger(BookListRetriever.class.getName());
+    public static final String URL_LIBRARY = Smashwords.BASE_URL + "/library";
+    private final PageLoader loader;
+    private final LoginHelper login;
     private Cache cache = new NoCache();
 
     public BookListRetriever(PageLoader loader, LoginHelper login) {
@@ -131,6 +131,12 @@ public class BookListRetriever {
 
     public BookList getBooksByCategory(ProgressCallback progressCallback, BookCategory category) throws IOException {
         return getBooksByCategory(progressCallback, category, Sortby.any, Price.anyPrice, Length.any);
+    }
+
+    public BookList getBooksByAuthor(ProgressCallback progressCallback, SwPerson author) throws IOException {
+        StringBuilder url = new StringBuilder();
+        url.append(Smashwords.BASE_URL).append("/profile/view/").append(author.getAccount().getUsername());
+        return getBooks(progressCallback, url.toString());
     }
 
     public BookList getBooksBySeries(ProgressCallback progressCallback, SwSeries series) throws IOException {
@@ -170,7 +176,7 @@ public class BookListRetriever {
                 List<Book> bookList = parseJsonBooklist(page);
                 books.addAll(bookList);
             } catch (Exception e) {
-                log.log(Level.SEVERE, "Cannot load library from: " + url);
+                log.log(Level.SEVERE, "Cannot load library from: " + url, e);
             }
         }
         return books;

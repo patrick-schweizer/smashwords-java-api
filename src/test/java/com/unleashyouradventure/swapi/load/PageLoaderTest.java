@@ -1,19 +1,21 @@
 package com.unleashyouradventure.swapi.load;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import com.unleashyouradventure.swapi.Smashwords;
+import com.unleashyouradventure.swapi.retriever.BookListRetriever.AdultContent;
+import org.junit.After;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 
-import org.junit.After;
-import org.junit.Test;
-
-import com.unleashyouradventure.swapi.Smashwords;
-import com.unleashyouradventure.swapi.retriever.BookListRetriever.AdultContent;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class PageLoaderTest {
     private File downloadFile;
+
+    private final static String ADULT_HIDING_MESSAGE = "Currently hiding all adult content in book lists and search results.";
+    private final static String ADULT_SHOW_MESSAGE = "Currently showing adult content, but not erotica, in book lists and search results.";
 
     @Test
     public void testGetFile() throws IOException {
@@ -30,25 +32,25 @@ public class PageLoaderTest {
 
         // default
         String page = loader.getPage(Smashwords.BASE_URL);
-        assertTrue(page.contains("Currently hiding adult content in book lists and search results."));
+        assertTrue(page.contains(ADULT_HIDING_MESSAGE));
 
         // on
         loader.setAdultContent(AdultContent.on);
         page = loader.getPage(Smashwords.BASE_URL);
-        assertTrue(page.contains("Currently showing adult content in book lists and search results."));
+        assertTrue(page.contains(ADULT_SHOW_MESSAGE));
 
         // off
         loader.setAdultContent(AdultContent.off);
         page = loader.getPage(Smashwords.BASE_URL);
-        assertTrue(page.contains("Currently hiding adult content in book lists and search results."));
+        assertTrue(page.contains(ADULT_HIDING_MESSAGE));
 
         // reset to default
         loader.setAdultContent(AdultContent.on);
         page = loader.getPage(Smashwords.BASE_URL); // Setting it on to be able to reset it in the next step
-        assertTrue(page.contains("Currently showing adult content in book lists and search results."));
+        assertTrue(page.contains(ADULT_SHOW_MESSAGE));
         loader.setAdultContent(AdultContent.swdefault);
         page = loader.getPage(Smashwords.BASE_URL);
-        assertTrue(page.contains("Currently hiding adult content in book lists and search results."));
+        assertTrue(page.contains(ADULT_HIDING_MESSAGE));
 
     }
 

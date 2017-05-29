@@ -5,7 +5,6 @@ import com.unleashyouradventure.swapi.OnOfflineTest;
 import com.unleashyouradventure.swapi.Smashwords;
 import com.unleashyouradventure.swapi.load.LoginHelper;
 import com.unleashyouradventure.swapi.load.PageLoader;
-import com.unleashyouradventure.swapi.model.ImageSize;
 import com.unleashyouradventure.swapi.retriever.BookListRetriever.Length;
 import com.unleashyouradventure.swapi.retriever.BookListRetriever.Price;
 import com.unleashyouradventure.swapi.retriever.BookListRetriever.Sortby;
@@ -52,10 +51,6 @@ public class BookListRetrieverTest extends OnOfflineTest {
 
         Book book = books.get(0);
         assertEquals(299, book.getPriceInCent());
-
-        book = books.get(1);
-        assertEquals(0, book.getPriceInCent());
-        book.getCover_url(ImageSize.thumb);
     }
 
     @Test

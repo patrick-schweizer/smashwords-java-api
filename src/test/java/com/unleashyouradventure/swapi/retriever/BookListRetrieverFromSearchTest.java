@@ -5,6 +5,8 @@ import com.unleashyouradventure.swapi.OnOfflineTest;
 import com.unleashyouradventure.swapi.Smashwords;
 import com.unleashyouradventure.swapi.load.LoginHelper;
 import com.unleashyouradventure.swapi.load.PageLoader;
+import com.unleashyouradventure.swapi.model.SwAccount;
+import com.unleashyouradventure.swapi.model.SwPerson;
 import com.unleashyouradventure.swapi.model.SwSeries;
 import lombok.extern.java.Log;
 import org.junit.Before;
@@ -62,5 +64,15 @@ public class BookListRetrieverFromSearchTest extends OnOfflineTest {
         new BookListValidator(books).validateBookFromListPage();
     }
 
+    @Test
+    public void shouldFindBooksByAuthor() throws IOException {
+        SwAccount account = new SwAccount();
+        account.setUsername("mc");
+        SwPerson person = new SwPerson();
+        person.setAccount(account);
+        List<Book> books = lib.getBooksByAuthor(PageLoader.PROGRESS_CALLBACK_DUMMY, person);
+        assertEquals("There should be 16 books by author.", 16, books.size());
+        new BookListValidator(books).validateBookFromListPage();
+    }
 
 }

@@ -146,7 +146,7 @@ public class BookRetriever {
         }
     };
 
-    private final static Parser<String> descriptionLongParser = new Parser<String>() {
+    private static final Parser<String> descriptionLongParser = new Parser<String>() {
         @Override
         protected String parseElement(Element element) {
             Element span = element.select("div#longDescription").first();
@@ -157,7 +157,7 @@ public class BookRetriever {
         }
     };
 
-    private final static Parser<SwPrice> priceParser = new Parser<SwPrice>() {
+    private static final Parser<SwPrice> priceParser = new Parser<SwPrice>() {
         @Override
         protected SwPrice parseElement(Element element) {
             Element elem = element.select("h3.panel-title").first();
@@ -183,7 +183,7 @@ public class BookRetriever {
         }
     };
 
-    private final static Parser<String> titleParser = new Parser<String>() {
+    private static final Parser<String> titleParser = new Parser<String>() {
         @Override
         protected String parseElement(Element element) {
             Element h1 = element.getElementsByTag("h1").first();
@@ -191,7 +191,7 @@ public class BookRetriever {
         }
     };
 
-    private final static Parser<Double> ratingParser = new Parser<Double>() {
+    private static final Parser<Double> ratingParser = new Parser<Double>() {
         @Override
         protected Double parseElement(Element element) {
             Element span = element.select("span[itemtype=http://data-vocabulary.org/Review-aggregate]").first();
