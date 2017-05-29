@@ -1,8 +1,8 @@
 package com.unleashyouradventure.swapi.retriever;
 
-public class BookCategoryRetriever {
+public final class BookCategoryRetriever {
 
-    private final static BookCategory cat1;
+    private static final BookCategory cat1;
 
     static {
         // Generated start
@@ -14,18 +14,30 @@ public class BookCategoryRetriever {
         cat3.addChild(cat892);
         BookCategory cat1248 = new BookCategory(1248, "African American fiction");
         cat3.addChild(cat1248);
+        BookCategory cat1106 = new BookCategory(1106, "Alternative history");
+        cat3.addChild(cat1106);
         BookCategory cat62 = new BookCategory(62, "Anthologies");
         cat3.addChild(cat62);
+        BookCategory cat1105 = new BookCategory(1105, "Biographical");
+        cat3.addChild(cat1105);
+        BookCategory cat895 = new BookCategory(895, "Business");
+        cat3.addChild(cat895);
         BookCategory cat61 = new BookCategory(61, "Children’s books");
         cat3.addChild(cat61);
         BookCategory cat1223 = new BookCategory(1223, "Christian");
         cat3.addChild(cat1223);
         BookCategory cat1348 = new BookCategory(1348, "Classics");
         cat3.addChild(cat1348);
+        BookCategory cat1095 = new BookCategory(1095, "Coming of age");
+        cat3.addChild(cat1095);
         BookCategory cat1332 = new BookCategory(1332, "Cultural & ethnic themes");
         cat3.addChild(cat1332);
+        BookCategory cat896 = new BookCategory(896, "Educational");
+        cat3.addChild(cat896);
         BookCategory cat59 = new BookCategory(59, "Erotica");
         cat3.addChild(cat59);
+        BookCategory cat887 = new BookCategory(887, "Fairy tales");
+        cat3.addChild(cat887);
         BookCategory cat1206 = new BookCategory(1206, "Fantasy");
         cat3.addChild(cat1206);
         BookCategory cat886 = new BookCategory(886, "Gay & lesbian fiction");
@@ -54,14 +66,26 @@ public class BookCategoryRetriever {
         cat3.addChild(cat60);
         BookCategory cat56 = new BookCategory(56, "Poetry");
         cat3.addChild(cat56);
+        BookCategory cat877 = new BookCategory(877, "Religious");
+        cat3.addChild(cat877);
         BookCategory cat1235 = new BookCategory(1235, "Romance");
         cat3.addChild(cat1235);
         BookCategory cat1213 = new BookCategory(1213, "Science fiction");
         cat3.addChild(cat1213);
+        BookCategory cat1126 = new BookCategory(1126, "Sports");
+        cat3.addChild(cat1126);
         BookCategory cat1337 = new BookCategory(1337, "Themes & motifs");
         cat3.addChild(cat1337);
         BookCategory cat874 = new BookCategory(874, "Thriller & suspense");
         cat3.addChild(cat874);
+        BookCategory cat1001 = new BookCategory(1001, "Transgressional fiction");
+        cat3.addChild(cat1001);
+        BookCategory cat873 = new BookCategory(873, "Urban");
+        cat3.addChild(cat873);
+        BookCategory cat1091 = new BookCategory(1091, "Visionary & metaphysical");
+        cat3.addChild(cat1091);
+        BookCategory cat871 = new BookCategory(871, "Western");
+        cat3.addChild(cat871);
         BookCategory cat870 = new BookCategory(870, "Women's fiction");
         cat3.addChild(cat870);
         BookCategory cat1018 = new BookCategory(1018, "Young adult or teen");
@@ -108,6 +132,8 @@ public class BookCategoryRetriever {
         cat4.addChild(cat81);
         BookCategory cat80 = new BookCategory(80, "Law");
         cat4.addChild(cat80);
+        BookCategory cat880 = new BookCategory(880, "Literary criticism");
+        cat4.addChild(cat880);
         BookCategory cat79 = new BookCategory(79, "Music");
         cat4.addChild(cat79);
         BookCategory cat78 = new BookCategory(78, "New Age");
@@ -152,12 +178,12 @@ public class BookCategoryRetriever {
         cat898.addChild(cat1065);
         BookCategory cat902 = new BookCategory(902, "Sociology");
         cat898.addChild(cat902);
-        BookCategory cat1066 = new BookCategory(1066, "Author profile");
-        cat898.addChild(cat1066);
-        BookCategory cat899 = new BookCategory(899, "Political");
-        cat898.addChild(cat899);
         BookCategory cat900 = new BookCategory(900, "Business");
         cat898.addChild(cat900);
+        BookCategory cat899 = new BookCategory(899, "Political");
+        cat898.addChild(cat899);
+        BookCategory cat1066 = new BookCategory(1066, "Author profile");
+        cat898.addChild(cat1066);
         BookCategory cat901 = new BookCategory(901, "Technology");
         cat898.addChild(cat901);
         BookCategory cat903 = new BookCategory(903, "Legal");
